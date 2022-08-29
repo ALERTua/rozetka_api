@@ -3,49 +3,9 @@ from typing import Optional
 from bs4 import Tag, ResultSet
 from global_logger import Log
 
+from rozetka.tools import str_to_price, parse_rating, parse_reviews
+
 LOG = Log.get_logger()
-
-
-def floats_from_str(str_):
-    blocks = str_.split()
-    floats = []
-    for block in blocks:
-        # noinspection PyBroadException
-        try:
-            floats.append(float(block))
-        except:  # noqa: E722
-            pass
-
-    return floats
-
-
-def str_to_price(price_str):
-    if not price_str:
-        return
-
-    price_str = price_str.replace("₴", "")
-    price_str = price_str.split()
-    price_str = "".join(price_str)
-    return int(price_str)
-
-
-def parse_rating(rating_str):
-    if not rating_str:
-        return
-
-    floats = floats_from_str(rating_str)
-    if len(floats) == 2:
-        rating_value, rating_max = floats
-        return rating_value / rating_max
-
-
-def parse_reviews(reviews_str):
-    if not reviews_str:
-        return
-
-    floats = floats_from_str(reviews_str)
-    if floats:
-        return int(floats[0])
 
 
 class Cell:

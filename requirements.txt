@@ -1,3 +1,5 @@
 requests
 beautifulsoup4
 pathlib
+influxdb-client[async]
+aiohttp-retry

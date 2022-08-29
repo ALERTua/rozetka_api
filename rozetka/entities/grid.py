@@ -6,22 +6,9 @@ from bs4 import ResultSet, BeautifulSoup
 from global_logger import Log
 
 from rozetka.entities.cell import Cell
+from rozetka.tools import title_clean
 
 LOG = Log.get_logger()
-
-
-def title_clean(title):
-    """
-    Cleans
-    Ноутбуки - ROZETKA | Купити ноутбук в Києві: ціна, відгуки, продаж, вибір ноутбуків в Україні'
-    to
-    Ноутбуки
-    """
-    if not title:
-        return ''
-
-    split = re.split(' - ROZETKA', title)
-    return split[0].strip()
 
 
 def url_page(url, page_num):
