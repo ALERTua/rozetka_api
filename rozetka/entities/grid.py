@@ -1,12 +1,11 @@
 import itertools
 import re
 
-import requests
 from bs4 import ResultSet, BeautifulSoup
 from global_logger import Log
 
 from rozetka.entities.cell import Cell
-from rozetka.tools import title_clean
+from rozetka.tools import tools
 
 LOG = Log.get_logger()
 
@@ -49,10 +48,10 @@ class Grid:
     def _get_page_data(self, page: int):
         page_url = url_page(self.url, page)
         LOG.green(f"Parsing data for {page_url}")
-        response = requests.get(page_url)
+        response = tools.get(page_url)
         assert response.ok, f"Error requesting {page_url} page {page}"
         soup = BeautifulSoup(response.text, "lxml")
-        self.title = title_clean(soup.title.text)
+        self.title = tools.title_clean(soup.title.text)
         return soup.find_all("li", class_="catalog-grid__cell")
 
     def _get_cell_blocks(self, page: int):
@@ -94,7 +93,7 @@ class Grid:
 
     @title.setter
     def title(self, value):
-        self._title = title_clean(value)
+        self._title = tools.title_clean(value)
 
     @classmethod
     def get(cls, url: str, allow_cache=True, parse=True):

@@ -3,7 +3,7 @@ from typing import Optional
 from bs4 import Tag, ResultSet
 from global_logger import Log
 
-from rozetka.tools import str_to_price, parse_rating, parse_reviews
+from rozetka.tools import tools
 
 LOG = Log.get_logger()
 
@@ -67,12 +67,12 @@ class Cell:
 
         price_old_block: Tag = cell.find("div", class_="goods-tile__price--old")
         assert price_old_block is not None, f'Error parsing {name}. no price_old_block found:\n{cell}'
-        price_old = str_to_price(price_old_block.text) if price_old_block.text else None
+        price_old = tools.str_to_price(price_old_block.text) if price_old_block.text else None
         LOG.debug(f"{name} price_old: {price_old}")
 
         price_block: Tag = cell.find("div", class_="goods-tile__price")  # todo: currency symbol
         assert price_block is not None, f'Error parsing {name}. no price_block found:\n{cell}'
-        price = str_to_price(price_block.text)
+        price = tools.str_to_price(price_block.text)
         assert price not in (None, ''), f'Error parsing {name}. no price found:\n{cell}'
         LOG.debug(f"{name} price: {price}")
 
@@ -82,11 +82,11 @@ class Cell:
         LOG.debug(f"{name} available: {available}")
 
         rating_block: Tag = cell.find("svg", attrs={'aria-label': True})
-        rating = parse_rating(rating_block.attrs.get('aria-label')) if rating_block else None
+        rating = tools.parse_rating(rating_block.attrs.get('aria-label')) if rating_block else None
         LOG.debug(f"{name} rating: {rating}")
 
         reviews_block: Tag = cell.find('span', class_='goods-tile__reviews-link')
-        reviews = parse_reviews(reviews_block.text) if reviews_block else None
+        reviews = tools.parse_reviews(reviews_block.text) if reviews_block else None
         LOG.debug(f"{name} reviews: {reviews}")
 
         promo_block: Tag = cell.find('span', class_='promo-label')

@@ -1,20 +1,16 @@
 import asyncio
+import os
 import re
 from typing import List
 
 from global_logger import Log
-
-from rozetka.entities.grid import Grid
-from rozetka.entities.page import Page
-from rozetka import db
 from influxdb_client import Point
 
-LOG = Log.get_logger()
+from rozetka.tools import db
+from rozetka.entities.grid import Grid
+from rozetka.entities.page import Page
 
-URLS = [
-    'https://rozetka.com.ua/ua/notebooks/c80004/page=2/',  # grid
-    'https://rozetka.com.ua/ua/atlantic_5903351335904/p325214854/',  # page
-]
+LOG = Log.get_logger()
 
 
 def url_type(url):
@@ -32,10 +28,10 @@ def parse_grid(grid: Grid) -> List[Point]:
     LOG.green(f"Parsing {grid}")  # todo: paging
     output = []
     for cell in grid.parsed_cells:
-        point = Point(cell.id_)\
-            .tag('title', cell.title)\
-            .tag('url', cell.href)\
-            .field('price', cell.price)\
+        point = Point(cell.id_) \
+            .tag('title', cell.title) \
+            .tag('url', cell.url) \
+            .field('price', cell.price) \
             .field('price', cell.price_old)
         if cell.price_old:
             point = point.field('price_old', cell.price_old)
@@ -52,10 +48,10 @@ def parse_grid(grid: Grid) -> List[Point]:
 def parse_page(page: Page) -> Point:
     LOG.green(f"Parsing {page}")
     # Point(MEASUREMENT).tag("id", "id1").field("price", 24.3).field("old_price", 25.2)
-    output = Point(page.id_)\
-        .tag('title', page.title)\
-        .tag('url', page.url)\
-        .field('price', page.price)\
+    output = Point(page.id_) \
+        .tag('title', page.title) \
+        .tag('url', page.url) \
+        .field('price', page.price) \
         .field('available', page.available)
     if page.price_old:
         output = output.field('price_old', page.price_old)
@@ -65,7 +61,7 @@ def parse_page(page: Page) -> Point:
 
 
 def main():
-    LOG.verbose = True
+    LOG.verbose = os.getenv('VERBOSE') == 'True'
 
     LOG.green(f"Parsing {len(URLS)} URLs")
     points: List[Point] = []

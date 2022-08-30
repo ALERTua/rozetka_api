@@ -1,4 +1,6 @@
 import re
+import requests
+from ratelimit import limits, sleep_and_retry
 
 
 def title_clean(title):
@@ -76,3 +78,10 @@ def parse_reviews(reviews_str):
     floats = floats_from_str(reviews_str)
     if floats:
         return int(floats[0])
+
+
+@sleep_and_retry
+@limits(calls=25, period=1)
+def get(*args, **kwargs):
+    return requests.get(*args, **kwargs)
+

@@ -1,10 +1,8 @@
 from typing import Optional
-
-import requests
 from bs4 import ResultSet, BeautifulSoup, Tag
-from rozetka import tools
 from global_logger import Log
 
+from rozetka.tools import tools
 
 LOG = Log.get_logger()
 
@@ -34,7 +32,7 @@ class Page:
     def get(cls, url: str, allow_cache=True):
         name = f"{cls.__name__}"
         LOG.green(f"Parsing page data for {url}")
-        response = requests.get(url)
+        response = tools.get(url)
         assert response.ok, f"Error requesting {url}"
         soup = BeautifulSoup(response.text, "lxml")
 
