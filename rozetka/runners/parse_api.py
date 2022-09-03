@@ -1,43 +1,26 @@
 import asyncio
-import os
-from collections import namedtuple
-from typing import List
 
-from influxdb_client import Point
-from alive_progress import alive_it
-
-from rozetka.tools import db
-from rozetka.entities.category import Category, get_all_categories
-from rozetka.entities.item import Item
+import pendulum
 from global_logger import Log
+from knockknock import telegram_sender, discord_sender, slack_sender, teams_sender
+from progress.bar import Bar
+from worker import worker
+
+from rozetka.entities.category import Category
+from rozetka.entities.item import Item
+from rozetka.entities.point import Point
+from rozetka.tools import db, constants
 
 LOG = Log.get_logger()
 
-Setter = namedtuple('Setter', ['fnc', 'flds'])
-tags = [
-    'title',
-    'url',
-    'brand',
-    'brand_id',
-    'category_id',
-    'category',
-    'parent_category_id',
-    'parent_category',
-]
-fields = [
-    'price',
-    'price_old',
-    'stars',
-    'discount',
-]
 setters = (
-    Setter(fnc=Point.tag, flds=tags),
-    Setter(fnc=Point.field, flds=fields),
+    constants.Setter(fnc=Point.tag, flds=constants.TAGS),
+    constants.Setter(fnc=Point.field, flds=constants.FIELDS),
 )
 
 
 def parse_item(item: Item):
-    item.parse()
+    # item.parse()
     point = Point(item.id_)
     for setter in setters:
         for fld in setter.flds:
@@ -47,39 +30,88 @@ def parse_item(item: Item):
     return point
 
 
-def parse_item_id(item_id):
-    item: Item = Item(item_id)
-    return parse_item(item)
-
-
-def parse_category(category: Category):
+def get_category_items(category: Category):
     items = category.items
+    for subcategory in category.subcategories:
+        items.extend(get_category_items(subcategory))
+    return items
+
+
+@worker  # https://github.com/Danangjoyoo/python-worker
+def parse_category(category: Category):
+    category_items = get_category_items(category)
+    if not category_items:
+        return
+
+    LOG.green(f"Parsing {len(category_items)} items for {category}")
+    items = Item.parse_multiple(*category_items)
+    if not items:
+        return
+
+    LOG.debug(f"Building points for {len(items)} items @ {category}")
     points = []
-    LOG.green(f"Parsing {len(items)} items for {category}")
-    # for item_id in alive_it(item_ids):
     for item in items:
-        item_points = parse_item(item)
-        points.append(item_points)
-    return points
+        item_point = parse_item(item)
+        points.append(item_point)
+
+    LOG.debug(f"Dumping {len(points)} points for {category}")
+    asyncio.run(db.dump_points_async(record=points))
 
 
-def dump_points(points: List[Point]):
-    LOG.green(f"Dumping {len(points)} data points")
-    asyncio.run(db.dump_points(points))
+def _main():
+    healthcheck = asyncio.run(db.health_test())
+    if not healthcheck:
+        LOG.error("InfluxDB inaccessible!")
+        raise Exception('healthcheck failure')
 
+    healthcheck = asyncio.run(db.tst_write())
+    if not healthcheck:
+        LOG.error("InfluxDB inaccessible!")
+        raise Exception('healthcheck failure')
 
-def main():
-    LOG.verbose = os.getenv('VERBOSE') == 'True'
-    categories: List[Category] = get_all_categories()
-    # for category in alive_it(categories):
-    for category in categories:
-        points = parse_category(category)
-        dump_points(points)
+    start = pendulum.now()
+    LOG.verbose = constants.VERBOSE
+    workers = []
+    # for category in alive_it(Category.get_all_categories()):
+    for category in Category.get_all_categories():
+        worker_ = parse_category(category)
+        workers.append(worker_)
+
+    for worker_ in Bar(f'Waiting for workers').iter(workers):
+        worker_.wait()
+
+    duration = pendulum.now().diff_for_humans(start)
+    LOG.debug(f"Duration: {duration}")
     pass
 
 
+def main():
+    assert constants.INFLUXDB_URL and constants.INFLUXDB_TOKEN and constants.INFLUXDB_ORG \
+           and constants.INFLUXDB_BUCKET, "Please fill all INFLUXDB variables"
+
+    assert constants.CALLS_MAX, "Please fill the correct CALLS_MAX variable"
+    assert constants.CALLS_PERIOD, "Please fill the correct CALLS_PERIOD variable"
+
+    fnc = _main  # https://github.com/huggingface/knockknock
+    if (tg_token := constants.TELEGRAM_TOKEN) and (tg_chat := constants.TELEGRAM_CHAT_ID):
+        fnc = telegram_sender(token=tg_token, chat_id=int(tg_chat))(fnc)
+
+    if discord_webhook := constants.DISCORD_WEBHOOK_URL:
+        fnc = discord_sender(discord_webhook)(fnc)
+
+    if (slack_webhook := constants.SLACK_WEBHOOK_URL) and (slack_channel := constants.SLACK_CHANNEL):
+        if slack_user_mentions := constants.SLACK_USER_MENTIONS:
+            slack_user_mentions = slack_user_mentions.split()
+        fnc = slack_sender(slack_webhook, slack_channel, slack_user_mentions)(fnc)
+
+    if teams_webhook := constants.TEAMS_WEBHOOK_URL:
+        if teams_user_mentions := constants.TEAMS_USER_MENTIONS:
+            teams_user_mentions = teams_user_mentions.split()
+        fnc = teams_sender(teams_webhook, teams_user_mentions)(fnc)
+
+    fnc()
+
+
 if __name__ == '__main__':
-    # parse_item_id(329710705)
-    # asyncio.run(main())
     main()
     pass

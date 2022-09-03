@@ -1,0 +1,18 @@
+requests
+pathlib
+pendulum
+
+influxdb-client[async]
+aiohttp-retry
+
+global-logger
+
+# alive-progress
+progress
+
+ratelimit
+python-worker
+
+# PyYAML
+
+knockknock

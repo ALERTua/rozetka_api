@@ -1,6 +1,13 @@
 import re
+import time
+
 import requests
+from global_logger import Log
 from ratelimit import limits, sleep_and_retry
+
+from rozetka.tools import constants
+
+LOG = Log.get_logger()
 
 
 def title_clean(title):
@@ -81,7 +88,13 @@ def parse_reviews(reviews_str):
 
 
 @sleep_and_retry
-@limits(calls=25, period=1)
-def get(*args, **kwargs):
-    return requests.get(*args, **kwargs)
-
+@limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD)
+def get(*args, retry=False, max_tries=3, delay=30, **kwargs):
+    response = requests.get(*args, timeout=60, **kwargs)
+    if retry:
+        i = 0
+        while not response.ok and response.status_code in (502, ) and (i := i + 1) < max_tries:
+            LOG.error(f"ERROR Requesting {response.request.url} : {response.status_code}. Retrying in {delay}")
+            time.sleep(delay)
+            response = requests.get(*args, **kwargs)
+    return response
