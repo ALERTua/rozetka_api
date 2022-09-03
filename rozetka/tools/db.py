@@ -1,46 +1,62 @@
-import os
-from typing import List
-
+import pendulum
 from aiohttp_retry import ExponentialRetry, RetryClient
-from influxdb_client import Point, InfluxDBClient, Bucket  # https://github.com/influxdata/influxdb-client-python
-from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 from global_logger import Log
+# https://github.com/influxdata/influxdb-client-python
+from influxdb_client import InfluxDBClient, Bucket, BucketRetentionRules
+from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
+
+from rozetka.entities.point import Point
+from rozetka.tools import constants
 
 log = Log.get_logger()
 
-INFLUXDB_URL = os.getenv('INFLUXDB_URL')
-INFLUXDB_TOKEN = os.getenv('INFLUXDB_TOKEN')
-INFLUXDB_ORG = os.getenv('INFLUXDB_ORG')
-INFLUXDB_BUCKET = os.getenv('INFLUXDB_BUCKET')
+INFLUXDB_URL = constants.INFLUXDB_URL
+INFLUXDB_TOKEN = constants.INFLUXDB_TOKEN
+INFLUXDB_ORG = constants.INFLUXDB_ORG
+INFLUXDB_BUCKET = constants.INFLUXDB_BUCKET
+INFLUX_KWARGS_ASYNC = dict(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, client_session_type=RetryClient,
+                           timeout=600_000, client_session_kwargs={"retry_options": ExponentialRetry(attempts=3)})
 
 
-async def dump_points(points: List[Point]):
-    retry_options = ExponentialRetry(attempts=3)
-    async with InfluxDBClientAsync(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG,
-                                   client_session_type=RetryClient,
-                                   client_session_kwargs={"retry_options": retry_options}) as client:
-        ready = await client.ping()
+def dump_points(record=None, *args, **kwargs):
+    if not record:
+        return
+
+    with InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG) as client:
+        ready = client.ping()
         # log.green(f"InfluxDB Ready: {ready}")
         if not ready:
             log.error(f"InfluxDB NOT READY")
             return
 
         write_api = client.write_api()
-        success = await write_api.write(bucket=INFLUXDB_BUCKET, record=points)
-        if not success:
-            log.error(f"dump_points failure")
+        success = write_api.write(bucket=INFLUXDB_BUCKET, *args, **kwargs)
+        if success is False:
+            log.error(f"Error dumping points")
+        return success
+
+
+async def dump_points_async(*args, **kwargs):
+    async with InfluxDBClientAsync(**INFLUX_KWARGS_ASYNC) as client:
+        ready = await client.ping()
+        if not ready:
+            log.error(f"InfluxDB NOT READY")
             return
 
-        """
-        Query: Stream of FluxRecords
-        """
-        # log.debug(f"\n------- Query: Stream of FluxRecords -------\n")
+        write_api = client.write_api()
+        success = await write_api.write(bucket=INFLUXDB_BUCKET, *args, **kwargs)
+        if not success:
+            log.error(f"dump_points_async failure")
+            raise Exception('dump_points_async failure')
+
         # query_api = client.query_api()
-        # records = await query_api.query_stream(f'from(bucket:"{BUCKET}") '
-        #                                        '|> range(start: -10m) ')
+        # records = await query_api.query_stream(f'from(bucket:"{INFLUXDB_BUCKET}") '
+        #                                        '|> range(start: -5s) ')
         #                                        # f'|> filter(fn: (r) => r["_measurement"] == "{MEASUREMENT}")')
         # async for record in records:
         #     log.debug(record)
+
+        return success
 
 
 def empty_bucket(bucket_name=INFLUXDB_BUCKET):
@@ -65,7 +81,7 @@ def empty_bucket(bucket_name=INFLUXDB_BUCKET):
 
 
 def recreate_bucket(bucket_name=INFLUXDB_BUCKET):
-    with InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, timeout=600_000) as client:
+    with InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, timeout=600_000_000) as client:
         ready = client.ping()
         # log.green(f"InfluxDB Ready: {ready}")
         if not ready:
@@ -73,20 +89,34 @@ def recreate_bucket(bucket_name=INFLUXDB_BUCKET):
             return
 
         buckets_api = client.buckets_api()
-        bucket = Bucket(name=bucket_name)
-        result_delete = buckets_api.delete_bucket(bucket)
-        result_create = buckets_api.create_bucket(bucket_name=bucket_name)
+        bucket: Bucket = buckets_api.find_bucket_by_name(bucket_name=bucket_name)
+        if bucket:
+            seconds = pendulum.duration(hours=1).in_seconds()
+            bucket.retention_rules = [BucketRetentionRules(type="expire", shard_group_duration_seconds=seconds,
+                                                           every_seconds=seconds)]
+            bucket.name = f"{bucket.name}_old_{pendulum.now().timestamp()}"
+            buckets_api.update_bucket(bucket)
+        # result_delete = buckets_api.delete_bucket(bucket)
+        # bucket = Bucket(name=bucket_name, retention_rules=retention_rules)
+        retention_rules = BucketRetentionRules(type="expire", every_seconds=0)
+        result_create = buckets_api.create_bucket(bucket_name=bucket_name, retention_rules=retention_rules,
+                                                  org=INFLUXDB_ORG)
         pass
 
 
-def tst_write():
+async def tst_write():
     points = [Point('test').tag('test', 'test').field('test', 0)]
-    asyncio.run(dump_points(points))
+    return await dump_points_async(record=points)
+
+
+async def health_test():
+    async with InfluxDBClientAsync(**INFLUX_KWARGS_ASYNC) as client:
+        ready = await client.ping()
+        return ready
 
 
 if __name__ == "__main__":
-    import asyncio
     # asyncio.run(empty_bucket(INFLUXDB_BUCKET))
     # recreate_bucket(INFLUXDB_BUCKET)
-    tst_write()
+    # tst_write()
     pass

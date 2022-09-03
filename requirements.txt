@@ -1,8 +1,0 @@
-requests
-beautifulsoup4
-pathlib
-ratelimit
-influxdb-client[async]
-aiohttp-retry
-# alive-progress
-# pyyaml
