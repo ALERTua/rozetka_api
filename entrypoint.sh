@@ -2,5 +2,5 @@
 echo "start rozetka @ $(pwd)"
 python -c "from rozetka.runners.parse_api import main; main()"
 echo "done rozetka"
-# crontab -f
+# cron -f
 # echo "rozetka cron done"
