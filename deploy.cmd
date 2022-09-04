@@ -6,11 +6,14 @@ set IMAGE_TAG=latest
 set BUILD_TAG=%REGISTRY_IP%:%REGISTRY_PORT%/%IMAGE_NAME%:%IMAGE_TAG%
 set BUILD_PATH=.
 
-set "_DOCKER=docker"
-@REM set "_DOCKER=C:\Program Files\Docker\Docker\resources\bin\docker.exe"
+set DOCKER_SERVICE=com.docker.service
+set DOCKER_EXE=docker
+where %DOCKER_EXE% >nul || set "DOCKER_EXE=C:\Program Files\Docker\Docker\resources\bin\docker.exe"
 
 pushd %~dp0
-@REM net start com.docker.service || exit /b
-"%_DOCKER%" build -t %BUILD_TAG% %BUILD_PATH% || exit /b
-"%_DOCKER%" push %REGISTRY_IP%:%REGISTRY_PORT%/%IMAGE_NAME% || exit /b
-@REM net stop com.docker.service || exit /b
+sc query %DOCKER_SERVICE% | findstr /IC:"running" >nul || sudo net start %DOCKER_SERVICE% || echo "Error starting docker service %DOCKER_SERVICE% & exit /b
+
+"%DOCKER_EXE%" build -t %BUILD_TAG% %BUILD_PATH% || exit /b
+"%DOCKER_EXE%" push %REGISTRY_IP%:%REGISTRY_PORT%/%IMAGE_NAME% || exit /b
+
+@REM net stop %DOCKER_SERVICE% || exit /b
