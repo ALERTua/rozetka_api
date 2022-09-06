@@ -56,6 +56,7 @@ async def dump_points_async(*args, **kwargs):
         # async for record in records:
         #     log.debug(record)
 
+        log.debug(f"Dumping points success")
         return success
 
 

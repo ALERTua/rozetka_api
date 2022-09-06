@@ -1,4 +1,7 @@
-from functools import cached_property
+from worker import worker
+
+from rozetka.entities.item import Item
+from functools import cached_property, partialmethod, cache
 from typing import List
 
 from global_logger import Log
@@ -10,9 +13,6 @@ LOG = Log.get_logger()
 
 class Category:
     _cache: dict[int, object] = dict()
-    _super_category_ids: List[int] = None
-    _super_categories: List[object] = None
-    _got_all_categories: bool = False
 
     def __init__(self, id_, title=None, url=None, parent_category=None, parent_category_id=None, direct=True):
         assert direct is False, f"You cannot use {self.__class__.__name__} directly. Please use get classmethod."
@@ -20,6 +20,8 @@ class Category:
         assert isinstance(self.id_, int), f"{self.__class__.__name__} id must be an int"
         self._title = title
         self.url = url
+        self._items_ids = None
+        self._items = None
         self._parent_category_id = parent_category_id
         self._parent_category = parent_category
         self._data: dict | None = None
@@ -42,8 +44,9 @@ class Category:
         return int(self.id_)
 
     def __iter__(self):
-        yield self
+        # yield self
         for subcategory in self.subcategories:
+            yield subcategory
             yield from subcategory.__iter__()
 
     @property
@@ -56,7 +59,7 @@ class Category:
             }
             url = 'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get'
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS, retry=True)
-            self._data = response.json().get('data', dict())
+            self._data = response.json().get('data', dict()) or dict()
         return self._data
 
     @data.setter
@@ -72,35 +75,6 @@ class Category:
     @title.setter
     def title(self, value):
         self._title = value
-
-    @staticmethod
-    def get_all_categories():
-        LOG.green(f"Getting all categories")
-        for super_category in Category.get_super_categories():
-            yield super_category
-            yield from super_category
-
-    @staticmethod
-    def get_super_categories():
-        LOG.debug(f"Getting super categories")
-        output = []
-        for super_category_id in Category.get_super_category_ids():
-            from rozetka.entities.supercategory import SuperCategory
-            super_category = SuperCategory.get(id_=super_category_id)
-            output.append(super_category)
-        Category._super_categories = output
-        LOG.debug(f"Got {len(output)} super categories")
-        return Category._super_categories
-
-    @staticmethod
-    def get_super_category_ids():
-        if Category._super_category_ids is None:
-            LOG.debug(f"Getting super category ids")
-            response = tools.get('https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList',
-                                 headers=constants.DEFAULT_HEADERS, retry=True)
-            Category._super_category_ids = output = response.json().get('data', list())
-            LOG.debug(f"Got {len(output)} super category ids")
-        return Category._super_category_ids
 
     @property
     def parent_category(self):
@@ -162,16 +136,15 @@ class Category:
         response = tools.get('https://xl-catalog-api.rozetka.com.ua/v4/goods/get', params=params,
                              headers=constants.DEFAULT_HEADERS, retry=True)
         if response.status_code != 200:
-            raise Exception(f'API response: {response.status_code}')
+            return {}
 
         return response.json()
 
-    @cached_property
-    def items_ids(self):
+    def _get_item_ids(self):
         LOG.debug(f"Getting all item ids for {self}")
         initial = self._get_page()
         if not initial:
-            return
+            return []
 
         data = initial.get('data')
         output: list = data.get('ids', list())
@@ -188,27 +161,46 @@ class Category:
             output.extend(ids)
         output = [i for i in output if i is not None]
         output = list(set(output))
+        output.sort()
         LOG.debug(f"Got {len(output)} item ids for {self}")
         return output
 
-    @cached_property
+    @property
+    def items_ids(self):
+        if self._items_ids is None:
+            self._items_ids = self._get_item_ids()
+        return self._items_ids
+
+    @property
     def items(self):
-        LOG.debug(f"Getting all items for {self}")
-        item_ids = self.items_ids
-        from rozetka.entities.item import Item
-        items = [Item.get(i) for i in item_ids]
-        for item in items:
-            if self.title:
-                item.category = self.title
-            if self.parent_category:
-                item.parent_category = self.parent_category
-        LOG.debug(f"Got {len(items)} items for {self}")
-        return items
+        if self._items is None:
+            LOG.debug(f"Getting all items for {self}")
+            item_ids = self.items_ids
+            if not item_ids:
+                return []
+
+            from rozetka.entities.item import Item
+            items = [Item.get(i) for i in item_ids]
+            # items.extend([list(i.__iter__()) for i in items])
+            output = []
+            for item in items:
+                if self.title:
+                    item.category = self.title
+                if self.parent_category:
+                    item.parent_category = self.parent_category
+                output.append(item)
+            output = list(set(output))
+            output.sort(key=lambda i: i.id_)
+            LOG.debug(f"Got {len(output)} items for {self}")
+            self._items = output
+        return self._items
 
     @property
     def subcategories_data(self):
         if self._subcategories_data is None:
             data = self.data
+            if not data:
+                return []
 
             id_ = data.get('id')
             assert id_ == self.id_
@@ -232,7 +224,7 @@ class Category:
     def subcategories_data(self, value):
         self._subcategories_data = value
 
-    @property
+    @cached_property
     def subcategories(self):
         if not (subcategories_data := self.subcategories_data):
             return
@@ -257,7 +249,7 @@ class Category:
             url = subcategory_data.get('href')
             children = subcategory_data.get('children', list())
 
-            subcategory = self.__class__.get(id_)
+            subcategory = Category.get(id_)
             subcategory.title = title
             subcategory.url = url
             subcategory.parent_category_id = parent_category_id
@@ -265,7 +257,50 @@ class Category:
             subcategory.subcategories_data = children
             yield subcategory
 
+    @cached_property
+    def items_and_subitems(self):  # todo:
+        item_ids = self.items_ids
+        items = Item.parse_multiple(*item_ids, parse_subitems=False)
+        subitem_ids = []
+        for item in items:
+            yield item
+            item_subitem_ids = item.subitem_ids
+            subitem_ids.extend(item_subitem_ids)
+        subitems = Item.parse_multiple(*subitem_ids, parse_subitems=False)
+        yield from subitems
+
+    @cached_property
+    def items_recursively(self):  # todo:
+        @worker  # https://github.com/Danangjoyoo/python-worker
+        def list_category_item_worker(_category: Category):
+            _items = list(_category.items_recursively)
+            return _items
+
+        @worker  # https://github.com/Danangjoyoo/python-worker
+        def list_category_items_and_subitems_worker(_category: Category):
+            _items = list(_category.items_and_subitems)
+            return _items
+
+        workers = []
+        subcategories = self.subcategories
+        if subcategories:
+            for subcategory in subcategories:
+                yield from subcategory.items_recursively
+        else:
+            worker_ = list_category_items_and_subitems_worker(self)
+            workers.append(worker_)
+
+            items = []
+            for worker_ in workers:
+                worker_.wait()
+                worker_result = worker_.ret
+                items.extend(worker_result)
+            yield from list(set(items))
+
 
 if __name__ == '__main__':
-    all_ = Category.get_all_categories()
+    LOG.verbose = True
+    category_ = Category.get(146633)
+    items_ = category_.items
     pass
+

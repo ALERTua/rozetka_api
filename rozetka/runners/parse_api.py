@@ -1,15 +1,16 @@
 import asyncio
+from itertools import zip_longest, chain
 
 import pendulum
+import requests
 from global_logger import Log
 from knockknock import telegram_sender, discord_sender, slack_sender, teams_sender
-from progress.bar import Bar
-from worker import worker
 
 from rozetka.entities.category import Category
 from rozetka.entities.item import Item
 from rozetka.entities.point import Point
-from rozetka.tools import db, constants
+from rozetka.entities.supercategory import SuperCategory
+from rozetka.tools import db, constants, tools
 
 LOG = Log.get_logger()
 
@@ -19,7 +20,7 @@ setters = (
 )
 
 
-def parse_item(item: Item):
+def build_item_point(item: Item):
     # item.parse()
     point = Point(item.id_)
     for setter in setters:
@@ -30,35 +31,13 @@ def parse_item(item: Item):
     return point
 
 
-def get_category_items(category: Category):
-    items = category.items
-    for subcategory in category.subcategories:
-        items.extend(get_category_items(subcategory))
-    return items
-
-
-@worker  # https://github.com/Danangjoyoo/python-worker
-def parse_category(category: Category):
-    category_items = get_category_items(category)
-    if not category_items:
-        return
-
-    LOG.green(f"Parsing {len(category_items)} items for {category}")
-    items = Item.parse_multiple(*category_items)
-    if not items:
-        return
-
-    LOG.debug(f"Building points for {len(items)} items @ {category}")
-    points = []
-    for item in items:
-        item_point = parse_item(item)
-        points.append(item_point)
-
-    LOG.debug(f"Dumping {len(points)} points for {category}")
-    asyncio.run(db.dump_points_async(record=points))
-
-
 def _main():
+    try:
+        requests.get('https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList')
+    except Exception as e:
+        LOG.exception("Rozetka unavailable", exc_info=e)
+        raise Exception('healthcheck failure')
+
     healthcheck = asyncio.run(db.health_test())
     if not healthcheck:
         LOG.error("InfluxDB inaccessible!")
@@ -71,14 +50,14 @@ def _main():
 
     start = pendulum.now()
     LOG.verbose = constants.VERBOSE
-    workers = []
-    # for category in alive_it(Category.get_all_categories()):
-    for category in Category.get_all_categories():
-        worker_ = parse_category(category)
-        workers.append(worker_)
 
-    for worker_ in Bar(f'Waiting for workers').iter(workers):
-        worker_.wait()
+    all_items = SuperCategory.get_all_items_recursively()
+
+    LOG.debug(f"Building points for {len(all_items)} items")
+    points = list(map(build_item_point, all_items))
+
+    LOG.debug(f"Dumping {len(points)} points")
+    asyncio.run(db.dump_points_async(record=points))
 
     duration = pendulum.now().diff_for_humans(start)
     LOG.debug(f"Duration: {duration}")

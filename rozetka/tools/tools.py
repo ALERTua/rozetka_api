@@ -1,9 +1,11 @@
 import re
 import time
+from itertools import zip_longest
 
 import requests
 from global_logger import Log
 from ratelimit import limits, sleep_and_retry
+from worker import worker
 
 from rozetka.tools import constants
 
@@ -98,3 +100,36 @@ def get(*args, retry=False, max_tries=3, delay=30, **kwargs):
             time.sleep(delay)
             response = requests.get(*args, **kwargs)
     return response
+
+
+def fnc_map(fnc, *tuple_of_args, **kwargs):
+    @worker
+    def _worker(*worker_args, **worker_kwargs):
+        return fnc(*worker_args, **worker_kwargs)
+
+    workers = []
+    for tuple_ in tuple_of_args:
+        workers.append(_worker(*tuple_, **kwargs))
+
+    outputs = []
+    for worker_ in workers:
+        worker_.wait()
+        outputs.append(worker_.ret)
+    return outputs
+
+
+def fncs_map(tuple_of_fncs, *tuple_of_args):
+    workers = []
+    for fnc, fnc_args in zip_longest(tuple_of_fncs, tuple_of_args):
+        @worker
+        def _worker(*worker_args):
+            return fnc(*worker_args)
+
+        fnc_args = fnc_args or []
+        workers.append(_worker(*fnc_args))
+
+    outputs = []
+    for worker_ in workers:
+        worker_.wait()
+        outputs.append(worker_.ret)
+    return outputs
