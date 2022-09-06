@@ -43,7 +43,7 @@ TEAMS_USER_MENTIONS = os.getenv('TEAMS_USER_MENTIONS', '')
 
 DEFAULT_TAGS = [
     'title',
-    'href',
+    # 'href',
     'brand',
     'brand_id',
     'category_id',
