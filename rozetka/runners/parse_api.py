@@ -61,7 +61,7 @@ def _main():
 
     duration = pendulum.now().diff_for_humans(start)
     LOG.green(f"Duration: {duration}")
-    pass
+    return len(points)
 
 
 def main():
