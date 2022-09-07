@@ -1,3 +1,5 @@
+from copy import copy
+
 import pendulum
 from aiohttp_retry import ExponentialRetry, RetryClient
 from global_logger import Log
@@ -14,15 +16,18 @@ INFLUXDB_URL = constants.INFLUXDB_URL
 INFLUXDB_TOKEN = constants.INFLUXDB_TOKEN
 INFLUXDB_ORG = constants.INFLUXDB_ORG
 INFLUXDB_BUCKET = constants.INFLUXDB_BUCKET
-INFLUX_KWARGS_ASYNC = dict(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, client_session_type=RetryClient,
-                           timeout=600_000, client_session_kwargs={"retry_options": ExponentialRetry(attempts=3)})
+
+INFLUX_KWARGS = dict(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, timeout=600_000_000)
+INFLUX_KWARGS_ASYNC = copy(INFLUX_KWARGS)
+INFLUX_KWARGS_ASYNC.update(dict(client_session_type=RetryClient,
+                                client_session_kwargs={"retry_options": ExponentialRetry(attempts=3)}))
 
 
 def dump_points(record=None, *args, **kwargs):
     if not record:
         return
 
-    with InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG) as client:
+    with InfluxDBClient(**INFLUX_KWARGS) as client:
         ready = client.ping()
         # log.green(f"InfluxDB Ready: {ready}")
         if not ready:
@@ -61,7 +66,7 @@ async def dump_points_async(*args, **kwargs):
 
 
 def empty_bucket(bucket_name=INFLUXDB_BUCKET):
-    with InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, timeout=600_000) as client:
+    with InfluxDBClient(**INFLUX_KWARGS) as client:
         ready = client.ping()
         # log.green(f"InfluxDB Ready: {ready}")
         if not ready:
@@ -82,7 +87,7 @@ def empty_bucket(bucket_name=INFLUXDB_BUCKET):
 
 
 def recreate_bucket(bucket_name=INFLUXDB_BUCKET):
-    with InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, timeout=600_000_000) as client:
+    with InfluxDBClient(**INFLUX_KWARGS) as client:
         ready = client.ping()
         # log.green(f"InfluxDB Ready: {ready}")
         if not ready:
@@ -118,6 +123,6 @@ async def health_test():
 
 if __name__ == "__main__":
     # asyncio.run(empty_bucket(INFLUXDB_BUCKET))
-    # recreate_bucket(INFLUXDB_BUCKET)
+    recreate_bucket(INFLUXDB_BUCKET)
     # tst_write()
     pass
