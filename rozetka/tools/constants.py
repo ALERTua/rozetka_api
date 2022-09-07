@@ -45,14 +45,14 @@ TEAMS_WEBHOOK_URL = os.getenv('TEAMS_WEBHOOK_URL')
 TEAMS_USER_MENTIONS = os.getenv('TEAMS_USER_MENTIONS', '')
 
 DEFAULT_TAGS = [
-    'title',
+    # 'title',
     # 'href',
-    'brand',
-    'brand_id',
-    'category_id',
-    'category',
-    'parent_category_id',
-    'parent_category',
+    # 'brand',
+    # 'brand_id',
+    # 'category_id',
+    # 'category',
+    # 'parent_category_id',
+    # 'parent_category',
 ]
 TAGS = os.getenv('TAGS', DEFAULT_TAGS)
 if isinstance(TAGS, str):
@@ -61,10 +61,10 @@ if isinstance(TAGS, str):
 DEFAULT_FIELDS = [
     'price',
     'old_price',
-    'stars',
+    # 'stars',
     'discount',
-    'comments_amount',
-    'comments_mark',
+    # 'comments_amount',
+    # 'comments_mark',
 ]
 FIELDS = os.getenv('FIELDS', DEFAULT_FIELDS)
 if isinstance(FIELDS, str):
