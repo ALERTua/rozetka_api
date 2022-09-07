@@ -13,11 +13,29 @@ LOG = Log.get_logger()
 
 class SuperCategory(Category):
     _super_category_ids: List[int] = None
-    _super_categories: List[object] = None
+    _super_categories = None  # type: List[SuperCategory]
+    _fat_menu_categories = None  # type: List[Category]
 
     def __init__(self, id_, title=None, url=None, parent_category=None, parent_category_id=None, direct=True):
         super().__init__(id_=id_, title=title, url=url, parent_category=parent_category,
                          parent_category_id=parent_category_id, direct=direct)
+
+    @property
+    def data(self):
+        if self._data is None:
+            params = {
+                'category_id': self.id_,
+                'lang': constants.LANGUAGE,
+                'country': constants.COUNTRY,
+            }
+            url = 'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get'
+            response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS, retry=True)
+            self._data = response.json().get('data', dict()) or dict()
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
 
     @property
     def subcategories_data(self):
@@ -37,13 +55,61 @@ class SuperCategory(Category):
         return self._subcategories_data
 
     @staticmethod
+    def get_fat_menu_categories():
+        if SuperCategory._fat_menu_categories is not None:
+            return SuperCategory._fat_menu_categories
+
+        params = {
+            'front-type': 'xl',
+            'country': 'UA',
+            'lang': 'ua',
+        }
+        response = tools.get('https://common-api.rozetka.com.ua/v2/fat-menu/full', params=params,
+                             headers=constants.DEFAULT_HEADERS, retry=True)
+        output = []
+        data: dict = response.json().get('data', dict())
+        for div in data.values():
+            children = div.get('children', dict())
+            if not children:
+                category_id = div.get('category_id')
+                if category_id is not None:
+                    category_title = div.get('title')
+                    category_url = div.get('manual_url')
+                    category = Category.get(id_=category_id, title=category_title, url=category_url)
+                    output.append(category)
+
+            for subchild in children.values():
+                for subsubchild in subchild:
+                    subchildren = subsubchild.get('children', list())
+                    if not subchildren:
+                        category_id = subsubchild.get('category_id')
+                        if category_id is not None:
+                            category_title = subsubchild.get('title')
+                            category_url = subsubchild.get('manual_url')
+                            category = Category.get(id_=category_id, title=category_title, url=category_url)
+                            output.append(category)
+
+                    for subsubsubchild in subchildren:
+                        category_id = subsubsubchild.get('category_id')
+                        if category_id is not None:
+                            category_title = subsubsubchild.get('title')
+                            category_url = subsubsubchild.get('manual_url')
+                            category = Category.get(id_=category_id, title=category_title, url=category_url)
+                            output.append(category)
+
+        SuperCategory._fat_menu_categories = output = list(set(output))
+        return output
+
+    @staticmethod
     def get_all_categories_recursively():
         LOG.green(f"Getting all categories")
-        for super_category in SuperCategory.get_super_categories():
-            LOG.debug(f"get_all_categories_recursively: yielding {super_category}")
-            yield super_category
-            LOG.debug(f"get_all_categories_recursively: yielding from {super_category}")
-            yield from super_category.__iter__()
+        categories = list(set(SuperCategory.get_super_categories() + SuperCategory.get_fat_menu_categories()))
+        categories.sort(key=lambda i: i.id_)
+        for category in categories:
+            LOG.debug(f"get_all_categories_recursively: yielding {category}")
+            yield category
+            LOG.debug(f"get_all_categories_recursively: yielding from {category}")
+            yield from category.__iter__()
 
     @staticmethod
     def get_all_categories_without_subcategories():
@@ -98,6 +164,7 @@ class SuperCategory(Category):
                 raise Exception(msg)
 
             SuperCategory._super_category_ids = output = response.json().get('data', list())
+            SuperCategory._super_category_ids.sort()
             LOG.debug(f"Got {len(output)} super category ids")
         return SuperCategory._super_category_ids
 
@@ -109,6 +176,9 @@ class SuperCategory(Category):
 if __name__ == '__main__':
     LOG.verbose = True
     # all_items = list(SuperCategory.all_categories_items())
-    supercategory = SuperCategory.get(80004)
+    # supercategory = SuperCategory.get(80003)
+    # get_super_category_ids = SuperCategory.get_super_category_ids()
+    # get_super_categories = SuperCategory.get_super_categories()
+    get_all_categories_recursively = list(SuperCategory.get_all_categories_recursively())
 
     pass

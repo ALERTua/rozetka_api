@@ -55,11 +55,11 @@ class Category:
     def data(self):
         if self._data is None:
             params = {
-                'category_id': self.id_,
+                'id': self.id_,
                 'lang': constants.LANGUAGE,
                 'country': constants.COUNTRY,
             }
-            url = 'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get'
+            url = 'https://xl-catalog-api.rozetka.com.ua/v4/categories/get'
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS, retry=True)
             self._data = response.json().get('data', dict()) or dict()
         return self._data
@@ -116,10 +116,14 @@ class Category:
             output.parent_category = output._parent_category or parent_category
             output.data = output._data or data
         else:
-            if data is None:
-                pass  # todo:
-            cls._cache[id_] = output = cls(id_=id_, title=title, url=url, parent_category_id=parent_category_id,
-                                           parent_category=parent_category, direct=False)
+            from rozetka.entities.supercategory import SuperCategory
+            class_ = Category
+            if id_ in SuperCategory.get_super_category_ids():
+                class_ = SuperCategory
+            output = class_(id_=id_, title=title, url=url, parent_category_id=parent_category_id,
+                            parent_category=parent_category, direct=False)
+            output.data = output._data or data
+            cls._cache[id_] = output
         return output
 
     def _get_page(self, page=1):
@@ -205,6 +209,9 @@ class Category:
                 return []
 
             id_ = data.get('id')
+            if not id_:
+                data = data.get('category')
+                id_ = data.get('id')
             assert id_ == self.id_
 
             title = data.get('title')
@@ -269,7 +276,7 @@ class Category:
 
 if __name__ == '__main__':
     LOG.verbose = True
-    category_ = Category.get(146633)
+    category_ = Category.get(80003)
     items_ = category_.items
     pass
 
