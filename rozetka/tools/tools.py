@@ -134,3 +134,8 @@ def fncs_map(tuple_of_fncs, *tuple_of_args):
         worker_.wait()
         outputs.append(worker_.ret)
     return outputs
+
+
+def slice_list(list_, chunk_size):
+    return [list_[i:i + chunk_size] for i in range(0, len(list_), chunk_size)]
+

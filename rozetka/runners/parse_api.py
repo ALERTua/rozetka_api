@@ -5,7 +5,6 @@ import requests
 from global_logger import Log
 from knockknock import telegram_sender, discord_sender, slack_sender, teams_sender
 
-from rozetka.entities.category import Category
 from rozetka.entities.item import Item
 from rozetka.entities.point import Point
 from rozetka.entities.supercategory import SuperCategory
@@ -56,7 +55,9 @@ def _main():
     points = list(map(build_item_point, all_items))
 
     LOG.green(f"Dumping {len(points)} points")
-    asyncio.run(db.dump_points_async(record=points))
+    chunked_points = tools.slice_list(points, 1000)
+    for chunked_points_item in chunked_points:
+        asyncio.run(db.dump_points_async(record=chunked_points_item))
 
     duration = pendulum.now().diff_for_humans(start)
     LOG.green(f"Duration: {duration}")

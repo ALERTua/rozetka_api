@@ -221,7 +221,7 @@ class Item:
 
         product_ids_str = [str(i) for i in product_ids]
         chunk_size = 900
-        chunked_lists = [product_ids_str[i:i + chunk_size] for i in range(0, len(product_ids_str), chunk_size)]
+        chunked_lists = tools.slice_list(product_ids_str, chunk_size)
         LOG.debug(f"Parsing {len(product_ids)} products divided into {len(chunked_lists)} batches by {chunk_size} each")
         outputs = tools.fnc_map(Item._parse_batch, *chunked_lists, subitems=subitems, parse_subitems=parse_subitems)
         output = []
