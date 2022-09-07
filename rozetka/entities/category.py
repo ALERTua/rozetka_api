@@ -224,78 +224,45 @@ class Category:
     def subcategories_data(self, value):
         self._subcategories_data = value
 
-    @cached_property
+    @property
     def subcategories(self):
-        if not (subcategories_data := self.subcategories_data):
-            return
+        if self._subcategories is None:
+            if not (subcategories_data := self.subcategories_data):
+                # LOG.debug(f"No subcategories found for  {self}")
+                self._subcategories = []
+                return self._subcategories
 
-        for subcategory_data in subcategories_data:
-            parent_category_id = subcategory_data.get('parent_id')
-            if parent_category_id != self.id_:
-                pop = subcategories_data.pop(subcategories_data.index(subcategory_data))
-                true_cat = self.__class__.get(parent_category_id)
-                true_cat.subcategories_data = true_cat.subcategories_data or []
-                true_cat.subcategories_data.append(pop)
-                true_cat.subcategories_data.sort(key=lambda i: i.get('id', 0))
-                true_subcategories_data = []
-                for data in true_cat.subcategories_data:
-                    if data.get('id') not in [i.get('id') for i in true_subcategories_data]:
-                        true_subcategories_data.append(data)
-                true_cat.subcategories_data = true_subcategories_data
-                continue
+            output = []
+            for subcategory_data in subcategories_data:
+                parent_category_id = subcategory_data.get('parent_id')
+                if parent_category_id != self.id_:
+                    pop = subcategories_data.pop(subcategories_data.index(subcategory_data))
+                    true_cat = self.__class__.get(parent_category_id)
+                    true_cat.subcategories_data = true_cat.subcategories_data or []
+                    true_cat.subcategories_data.append(pop)
+                    true_cat.subcategories_data.sort(key=lambda i: i.get('id', 0))
+                    true_subcategories_data = []
+                    for data in true_cat.subcategories_data:
+                        if data.get('id') not in [i.get('id') for i in true_subcategories_data]:
+                            true_subcategories_data.append(data)
+                    true_cat.subcategories_data = true_subcategories_data
+                    continue
 
-            id_ = subcategory_data.get('id')
-            title = subcategory_data.get('title')
-            url = subcategory_data.get('href')
-            children = subcategory_data.get('children', list())
+                id_ = subcategory_data.get('id')
+                title = subcategory_data.get('title')
+                url = subcategory_data.get('href')
+                children = subcategory_data.get('children', list())
 
-            subcategory = Category.get(id_)
-            subcategory.title = title
-            subcategory.url = url
-            subcategory.parent_category_id = parent_category_id
-            subcategory.parent_category = self
-            subcategory.subcategories_data = children
-            yield subcategory
-
-    @cached_property
-    def items_and_subitems(self):  # todo:
-        item_ids = self.items_ids
-        items = Item.parse_multiple(*item_ids, parse_subitems=False)
-        subitem_ids = []
-        for item in items:
-            yield item
-            item_subitem_ids = item.subitem_ids
-            subitem_ids.extend(item_subitem_ids)
-        subitems = Item.parse_multiple(*subitem_ids, parse_subitems=False)
-        yield from subitems
-
-    @cached_property
-    def items_recursively(self):  # todo:
-        @worker  # https://github.com/Danangjoyoo/python-worker
-        def list_category_item_worker(_category: Category):
-            _items = list(_category.items_recursively)
-            return _items
-
-        @worker  # https://github.com/Danangjoyoo/python-worker
-        def list_category_items_and_subitems_worker(_category: Category):
-            _items = list(_category.items_and_subitems)
-            return _items
-
-        workers = []
-        subcategories = self.subcategories
-        if subcategories:
-            for subcategory in subcategories:
-                yield from subcategory.items_recursively
-        else:
-            worker_ = list_category_items_and_subitems_worker(self)
-            workers.append(worker_)
-
-            items = []
-            for worker_ in workers:
-                worker_.wait()
-                worker_result = worker_.ret
-                items.extend(worker_result)
-            yield from list(set(items))
+                subcategory = Category.get(id_)
+                subcategory.title = title
+                subcategory.url = url
+                subcategory.parent_category_id = parent_category_id
+                subcategory.parent_category = self
+                subcategory.subcategories_data = children
+                output.append(subcategory)
+            self._subcategories = output
+            LOG.green(f"Got {len(output)} subcategories for {self}")
+        return self._subcategories
 
 
 if __name__ == '__main__':

@@ -12,12 +12,15 @@ COUNTRY = os.getenv('COUNTRY', 'UA')
 assert COUNTRY, "Please fill the correct COUNTRY variable"
 
 DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                     'Chrome/104.0.0.0 Safari/537.36'
+                     'Chrome/105.0.0.0 Safari/537.36'
 USER_AGENT = os.getenv('USER_AGENT', DEFAULT_USER_AGENT)
 assert USER_AGENT, "Please fill the correct USER_AGENT variable"
 
 DEFAULT_HEADERS = {
     'User-Agent': USER_AGENT,
+
+DEFAULT_COOKIES = {
+    'visitor_city': "1",
 }
 
 CALLS_MAX = os.getenv('CALLS_MAX', 1000)

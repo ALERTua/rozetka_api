@@ -1,5 +1,4 @@
 import asyncio
-from itertools import zip_longest, chain
 
 import pendulum
 import requests
@@ -53,14 +52,14 @@ def _main():
 
     all_items = SuperCategory.get_all_items_recursively()
 
-    LOG.debug(f"Building points for {len(all_items)} items")
+    LOG.green(f"Building points for {len(all_items)} items")
     points = list(map(build_item_point, all_items))
 
-    LOG.debug(f"Dumping {len(points)} points")
+    LOG.green(f"Dumping {len(points)} points")
     asyncio.run(db.dump_points_async(record=points))
 
     duration = pendulum.now().diff_for_humans(start)
-    LOG.debug(f"Duration: {duration}")
+    LOG.green(f"Duration: {duration}")
     pass
 
 

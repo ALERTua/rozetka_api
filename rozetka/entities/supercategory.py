@@ -2,6 +2,7 @@ from itertools import chain
 from typing import List
 
 from global_logger import Log
+from requests import Response
 
 from rozetka.entities.category import Category
 from rozetka.entities.item import Item
@@ -80,8 +81,14 @@ class SuperCategory(Category):
     def get_super_category_ids():
         if SuperCategory._super_category_ids is None:
             LOG.debug(f"Getting super category ids")
-            response = tools.get('https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList',
-                                 headers=constants.DEFAULT_HEADERS, retry=True)
+            url = 'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList'
+            response: Response = tools.get(url, headers=constants.DEFAULT_HEADERS, cookies=constants.DEFAULT_COOKIES,
+                                           retry=True)
+            if not response.ok:
+                msg = f'Error requesting "{url}": {response.status_code} {response.reason}'
+                LOG.error(msg)
+                raise Exception(msg)
+
             SuperCategory._super_category_ids = output = response.json().get('data', list())
             LOG.debug(f"Got {len(output)} super category ids")
         return SuperCategory._super_category_ids

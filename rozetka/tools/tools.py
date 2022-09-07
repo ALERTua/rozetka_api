@@ -5,6 +5,7 @@ from itertools import zip_longest
 import requests
 from global_logger import Log
 from ratelimit import limits, sleep_and_retry
+from requests import Response
 from worker import worker
 
 from rozetka.tools import constants
@@ -91,7 +92,7 @@ def parse_reviews(reviews_str):
 
 @sleep_and_retry
 @limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD)
-def get(*args, retry=False, max_tries=3, delay=30, **kwargs):
+def get(*args, retry=False, max_tries=3, delay=30, **kwargs) -> Response:
     response = requests.get(*args, timeout=60, **kwargs)
     if retry:
         i = 0
