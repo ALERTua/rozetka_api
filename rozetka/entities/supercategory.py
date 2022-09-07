@@ -40,25 +40,33 @@ class SuperCategory(Category):
     def get_all_categories_recursively():
         LOG.green(f"Getting all categories")
         for super_category in SuperCategory.get_super_categories():
+            LOG.debug(f"get_all_categories_recursively: yielding {super_category}")
             yield super_category
+            LOG.debug(f"get_all_categories_recursively: yielding from {super_category}")
             yield from super_category.__iter__()
 
     @staticmethod
     def get_all_categories_without_subcategories():
         all_categories = list(SuperCategory.get_all_categories_recursively())
-        return list(set([cat for cat in all_categories if not cat.subcategories_data]))
+        LOG.green(f"Got {len(all_categories)} total categories recursively")
+        output = list(set([cat for cat in all_categories if not cat.subcategories_data]))
+        LOG.green(f"Got {len(output)} categories without subcategories in them")
+        return output
 
     @staticmethod
     def get_all_items_recursively():
         categories_without_subcategories = SuperCategory.get_all_categories_without_subcategories()
         items_ids = tools.fncs_map((cat._get_item_ids for cat in categories_without_subcategories))
         items_ids = list(set(chain(*items_ids)))
+        LOG.debug(f"Got {len(items_ids)} items from {len(categories_without_subcategories)} categories")
         items = Item.parse_multiple(*items_ids, parse_subitems=False)
 
         subitems_ids = list(set(list(chain(*[i.subitem_ids for i in items]))))
+        LOG.debug(f"Got {len(subitems_ids)} subitems from {len(categories_without_subcategories)} categories")
         subitems = Item.parse_multiple(*subitems_ids, subitems=True)
 
         all_items = list(set(items + subitems))
+        LOG.green(f"Got {len(all_items)} total items from {len(categories_without_subcategories)} categories")
         return all_items
 
     @staticmethod
@@ -74,7 +82,7 @@ class SuperCategory(Category):
             output.append(super_category)
         output.sort(key=lambda i: i.id_)
         SuperCategory._super_categories = output
-        LOG.debug(f"Got {len(output)} super categories")
+        LOG.green(f"Got {len(output)} super categories")
         return SuperCategory._super_categories
 
     @staticmethod

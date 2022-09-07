@@ -46,7 +46,9 @@ class Category:
     def __iter__(self):
         # yield self
         for subcategory in self.subcategories:
+            LOG.debug(f"category iter: yielding {subcategory}")
             yield subcategory
+            LOG.debug(f"category iter: yielding from {subcategory}")
             yield from subcategory.__iter__()
 
     @property
@@ -261,7 +263,7 @@ class Category:
                 subcategory.subcategories_data = children
                 output.append(subcategory)
             self._subcategories = output
-            LOG.green(f"Got {len(output)} subcategories for {self}")
+            LOG.debug(f"Got {len(output)} subcategories for {self}")
         return self._subcategories
 
 

@@ -17,8 +17,7 @@ class Item:
         self.id_ = id_
         assert isinstance(self.id_, int), f"{self.__class__.__name__} id must be an int"
 
-        self.__dict__.update(kwargs)
-        self._data = kwargs
+        self.data = kwargs
 
         if (stars := self.__dict__.get('stars', None)) is not None:
             if '%' in str(stars):
@@ -236,14 +235,22 @@ class Item:
         if not groups:
             return []
 
-        subitem_blocks: Dict[str, List[Dict]] = groups.get('block', {})
-        for _, subitem_block_list in subitem_blocks.items():
-            for subitem_block in subitem_block_list:
-                if id_ := subitem_block.get('id'):
-                    if id_ == self.id_:
-                        continue
+        for _, block in groups.items():
+            block_iterator = block if isinstance(block, list) else block.values()
+            for group in block_iterator:
+                if isinstance(group, list):
+                    subitem_iterator = group
+                elif isinstance(group, dict):
+                    subitem_iterator = [group]
+                else:
+                    continue
 
-                    yield id_
+                for subitem in subitem_iterator:
+                    if id_ := subitem.get('id'):
+                        if id_ == self.id_:
+                            continue
+
+                        yield id_
 
     @cached_property
     def subitems(self):
@@ -253,30 +260,47 @@ class Item:
 
         return self.__class__.parse_multiple(*subitem_ids, subitems=True)
 
-    def parse(self, force=False):
+    def parse(self, force=False, *args, **kwargs):
         if not force and self._parsed:
             return
 
-        self.__class__.parse_multiple(*[self.id_])
+        self.__class__.parse_multiple(*[self.id_], *args, **kwargs)
 
     @classmethod
     def get(cls, id_, **kwargs):
         if id_ in cls._cache:
             output = cls._cache[id_]
-            if kwargs and not output._data:
-                output._data = kwargs
+            if kwargs and not output.data:
+                output.data = kwargs
         else:
             output = cls(id_, direct=False, **kwargs)
         cls._cache[id_] = output
         return output
 
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self.__dict__.update(value)
+        self._data = value
+
 
 class SubItem(Item):
-    @cached_property
+    @property
     def subitems(self):
         return []
 
+    @property
+    def subitem_ids(self):
+        return []
+
+    def parse(self, force=False, *args, **kwargs):
+        return super().parse(force=force, subitems=True, parse_subitems=False)
+
 
 if __name__ == '__main__':
-    item_ = Item.get(21155709)
+    item_ = Item.get(306660108)
+    item_.parse()
     pass
