@@ -5,7 +5,7 @@ from global_logger import Log
 from requests import Response
 
 from rozetka.entities.category import Category
-from rozetka.entities.item import Item
+from rozetka.entities.item import Item, SubItem
 from rozetka.tools import tools, constants
 
 LOG = Log.get_logger()
@@ -103,7 +103,12 @@ class SuperCategory(Category):
     @staticmethod
     def get_all_categories_recursively():
         LOG.green(f"Getting all categories")
-        categories = list(set(SuperCategory.get_super_categories() + SuperCategory.get_fat_menu_categories()))
+        supercategories = list(SuperCategory.get_super_categories() + SuperCategory.get_fat_menu_categories())
+        cache = list(Category._cache.values())
+        supers_cache = list(SuperCategory._cache.values())
+        # noinspection PyTypeChecker
+        categories = supercategories + cache + supers_cache
+        categories = list(set(categories))
         categories.sort(key=lambda i: i.id_)
         for category in categories:
             LOG.debug(f"get_all_categories_recursively: yielding {category}")
@@ -120,8 +125,9 @@ class SuperCategory(Category):
         return output
 
     @staticmethod
-    def get_all_items_recursively():
+    def get_all_items_recursively() -> List[Item]:
         categories_without_subcategories = SuperCategory.get_all_categories_without_subcategories()
+        # noinspection PyProtectedMember
         items_ids = tools.fncs_map((cat._get_item_ids for cat in categories_without_subcategories))
         items_ids = list(set(chain(*items_ids)))
         LOG.debug(f"Got {len(items_ids)} items from {len(categories_without_subcategories)} categories")
@@ -131,7 +137,8 @@ class SuperCategory(Category):
         LOG.debug(f"Got {len(subitems_ids)} subitems from {len(categories_without_subcategories)} categories")
         subitems = Item.parse_multiple(*subitems_ids, subitems=True)
 
-        all_items = list(set(items + subitems))
+        # noinspection PyProtectedMember
+        all_items = list(set(items + subitems + list(Item._cache.values()) + list(SubItem._cache.values())))
         LOG.green(f"Got {len(all_items)} total items from {len(categories_without_subcategories)} categories")
         return all_items
 
@@ -175,10 +182,10 @@ class SuperCategory(Category):
 
 if __name__ == '__main__':
     LOG.verbose = True
-    # all_items = list(SuperCategory.all_categories_items())
-    # supercategory = SuperCategory.get(80003)
+    # supercategory = SuperCategory.get(1162030)
+    # subs = supercategory.subcategories
     # get_super_category_ids = SuperCategory.get_super_category_ids()
     # get_super_categories = SuperCategory.get_super_categories()
-    get_all_categories_recursively = list(SuperCategory.get_all_categories_recursively())
-
+    # get_all_categories_recursively = list(SuperCategory.get_all_categories_recursively())
+    all_items_ = SuperCategory.get_all_items_recursively()
     pass

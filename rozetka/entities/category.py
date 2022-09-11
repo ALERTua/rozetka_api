@@ -246,7 +246,7 @@ class Category:
                 parent_category_id = subcategory_data.get('parent_id')
                 if parent_category_id != self.id_:
                     pop = subcategories_data.pop(subcategories_data.index(subcategory_data))
-                    true_cat = self.__class__.get(parent_category_id)
+                    true_cat = Category.get(parent_category_id)
                     true_cat.subcategories_data = true_cat.subcategories_data or []
                     true_cat.subcategories_data.append(pop)
                     true_cat.subcategories_data.sort(key=lambda i: i.get('id', 0))
@@ -276,7 +276,7 @@ class Category:
 
 if __name__ == '__main__':
     LOG.verbose = True
-    category_ = Category.get(80003)
+    category_ = Category.get(1162030)
     items_ = category_.items
     pass
 
