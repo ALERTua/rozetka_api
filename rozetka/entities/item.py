@@ -16,7 +16,7 @@ class Item:
         assert direct is False, f"You cannot use {self.__class__.__name__} directly. Please use get classmethod."
         self.id_ = id_
         assert isinstance(self.id_, int), f"{self.__class__.__name__} id must be an int"
-
+        self.category = None
         self.data = kwargs
 
         if (stars := self.__dict__.get('stars', None)) is not None:
@@ -258,7 +258,11 @@ class Item:
         if not subitem_ids:
             return []
 
-        return self.__class__.parse_multiple(*subitem_ids, subitems=True)
+        output = self.__class__.parse_multiple(*subitem_ids, subitems=True)
+        for subitem in output:
+            subitem.parent_item = self
+            subitem.category = self.category
+        return output
 
     def parse(self, force=False, *args, **kwargs):
         if not force and self._parsed:
@@ -288,6 +292,10 @@ class Item:
 
 
 class SubItem(Item):
+    def __init__(self, id_, **kwargs):
+        super().__init__(id_, **kwargs)
+        self.parent_item = None
+
     @property
     def subitems(self):
         return []

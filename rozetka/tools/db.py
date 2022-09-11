@@ -17,7 +17,7 @@ INFLUXDB_TOKEN = constants.INFLUXDB_TOKEN
 INFLUXDB_ORG = constants.INFLUXDB_ORG
 INFLUXDB_BUCKET = constants.INFLUXDB_BUCKET
 
-INFLUX_KWARGS = dict(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, timeout=600_000_000)
+INFLUX_KWARGS = dict(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG, timeout=600_000_000, enable_gzip=True)
 INFLUX_KWARGS_ASYNC = copy(INFLUX_KWARGS)
 INFLUX_KWARGS_ASYNC.update(dict(client_session_type=RetryClient,
                                 client_session_kwargs={"retry_options": ExponentialRetry(attempts=3)}))

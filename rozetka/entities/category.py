@@ -1,7 +1,4 @@
-from worker import worker
-
 from rozetka.entities.item import Item
-from functools import cached_property, partialmethod, cache
 from typing import List
 
 from global_logger import Log
@@ -44,7 +41,6 @@ class Category:
         return int(self.id_)
 
     def __iter__(self):
-        # yield self
         for subcategory in self.subcategories:
             LOG.debug(f"category iter: yielding {subcategory}")
             yield subcategory
@@ -118,7 +114,8 @@ class Category:
         else:
             from rozetka.entities.supercategory import SuperCategory
             class_ = Category
-            if id_ in SuperCategory.get_super_category_ids():
+            from rozetka.entities.supercategory import get_super_category_ids
+            if id_ in get_super_category_ids():
                 class_ = SuperCategory
             output = class_(id_=id_, title=title, url=url, parent_category_id=parent_category_id,
                             parent_category=parent_category, direct=False)
@@ -190,16 +187,16 @@ class Category:
             # items.extend([list(i.__iter__()) for i in items])
             output = []
             for item in items:
-                if self.title:
-                    item.category = self.title
-                if self.parent_category:
-                    item.parent_category = self.parent_category
+                item.category = self
                 output.append(item)
             output = list(set(output))
             output.sort(key=lambda i: i.id_)
             LOG.debug(f"Got {len(output)} items for {self}")
             self._items = output
         return self._items
+
+    def parse_items(self):
+        _ = Item.parse_multiple(*self.items_ids, parse_subitems=True)
 
     @property
     def subcategories_data(self):
@@ -233,8 +230,7 @@ class Category:
     def subcategories_data(self, value):
         self._subcategories_data = value
 
-    @property
-    def subcategories(self):
+    def _get_subcategories(self, parent_key='parent_id'):
         if self._subcategories is None:
             if not (subcategories_data := self.subcategories_data):
                 # LOG.debug(f"No subcategories found for  {self}")
@@ -243,7 +239,10 @@ class Category:
 
             output = []
             for subcategory_data in subcategories_data:
-                parent_category_id = subcategory_data.get('parent_id')
+                parent_category_id = subcategory_data.get(parent_key, subcategory_data.get('parent_id'))
+                if not parent_category_id:
+                    LOG.error("THIS SHOULDN'T HAPPEN")
+
                 if parent_category_id != self.id_:
                     pop = subcategories_data.pop(subcategories_data.index(subcategory_data))
                     true_cat = Category.get(parent_category_id)
@@ -260,6 +259,10 @@ class Category:
                 id_ = subcategory_data.get('id')
                 title = subcategory_data.get('title')
                 url = subcategory_data.get('href')
+                if self.id_ == id_:
+                    LOG.warning(f"Loop subcategory detected @ {id_} {title}")
+                    continue
+
                 children = subcategory_data.get('children', list())
 
                 subcategory = Category.get(id_)
@@ -269,9 +272,15 @@ class Category:
                 subcategory.parent_category = self
                 subcategory.subcategories_data = children
                 output.append(subcategory)
+
+            output.sort(key=lambda i: i.id_)
             self._subcategories = output
             LOG.debug(f"Got {len(output)} subcategories for {self}")
         return self._subcategories
+
+    @property
+    def subcategories(self):
+        return self._get_subcategories()
 
 
 if __name__ == '__main__':
