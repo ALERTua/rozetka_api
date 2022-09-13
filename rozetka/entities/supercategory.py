@@ -62,18 +62,22 @@ def get_fat_menu_categories():
 
 
 def get_all_items_recursively() -> List[Item]:
-    LOG.green("Getting ALL items recursively")
     categories = list(get_all_categories_recursively())
+    LOG.green("Got ALL categories recursively")
 
+    LOG.green("Getting ALL items recursively")
     # noinspection PyProtectedMember
     items_ids = tools.fncs_map((cat._get_item_ids for cat in categories))
     items_ids = list(set(chain(*items_ids)))
-    LOG.debug(f"Got {len(items_ids)} items from {len(categories)} categories")
+    LOG.debug(f"Got {len(items_ids)} item ids from {len(categories)} categories")
     items = Item.parse_multiple(*items_ids, parse_subitems=False)
+    LOG.green(f"Got {len(items)} items from {len(categories)} categories")
 
+    LOG.green("Getting subitem ids")
     subitems_ids = list(set(list(chain(*[i.subitem_ids for i in items]))))
-    LOG.debug(f"Got {len(subitems_ids)} subitems from {len(categories)} categories")
+    LOG.debug(f"Got {len(subitems_ids)} subitem ids from {len(categories)} categories")
     subitems = Item.parse_multiple(*subitems_ids, subitems=True)
+    LOG.debug(f"Got {len(subitems)} subitems from {len(categories)} categories")
 
     # noinspection PyProtectedMember
     all_items = items + subitems + list(Item._cache.values()) + list(SubItem._cache.values())
