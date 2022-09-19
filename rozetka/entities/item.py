@@ -224,6 +224,7 @@ class Item:
         chunked_lists = tools.slice_list(product_ids_str, chunk_size)
         LOG.debug(f"Parsing {len(product_ids)} products divided into {len(chunked_lists)} batches by {chunk_size} each")
         outputs = tools.fnc_map(Item._parse_batch, *chunked_lists, subitems=subitems, parse_subitems=parse_subitems)
+        outputs = [i for i in outputs if i]
         output = []
         for list_ in outputs:
             output.extend(list_)
