@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "rozetka-api"
-version = "0.9.0"
+version = "0.9.1a0"
 description = "Rozetka Python API"
 authors = ["Alexey ALERT Rubasheff <alexey.rubasheff@gmail.com>"]
 readme = "README.rst"
 packages = [{include = "rozetka"}]
 keywords = ["rozetka"]
 classifiers = [
-    "Topic :: Software Development :: API",
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
+
 [tool.poetry.build]
 generate-setup-file = false
 
