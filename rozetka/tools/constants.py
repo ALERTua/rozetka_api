@@ -18,6 +18,7 @@ assert USER_AGENT, "Please fill the correct USER_AGENT variable"
 
 DEFAULT_HEADERS = {
     'User-Agent': USER_AGENT,
+}
 
 DEFAULT_COOKIES = {
     'visitor_city': "1",
