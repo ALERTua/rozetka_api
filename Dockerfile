@@ -5,7 +5,7 @@ MAINTAINER ALERT <alexey.rubasheff@gmail.com>
 
 WORKDIR /app
 
-COPY rozetka/requirements/requirements.txt /app/
+COPY requirements.txt /app/
 RUN pip install --progress-bar=off --no-cache-dir -U pip setuptools wheel && pip install --progress-bar=off --no-cache-dir -r /app/requirements.txt
 
 # COPY crontab /etc/cron.d/crontab

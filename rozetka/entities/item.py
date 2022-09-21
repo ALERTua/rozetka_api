@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import Dict, List, Collection, Optional
+from typing import Dict, List, Collection
 
 from global_logger import Log
 

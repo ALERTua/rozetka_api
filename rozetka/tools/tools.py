@@ -6,6 +6,7 @@ import requests
 from global_logger import Log
 from ratelimit import limits, sleep_and_retry
 from requests import Response
+# noinspection PyPackageRequirements
 from worker import worker
 
 from rozetka.tools import constants
