@@ -67,7 +67,7 @@ def get_all_items_recursively() -> List[Item]:
 
     LOG.green("Getting ALL items recursively")
     # noinspection PyProtectedMember
-    items_ids = tools.fncs_map((cat._get_item_ids for cat in categories))
+    items_ids = tools.fncs_map((cat._get_item_ids for cat in categories)) or []
     items_ids = list(set(chain(*items_ids)))
     LOG.debug(f"Got {len(items_ids)} item ids from {len(categories)} categories")
     items = Item.parse_multiple(*items_ids, parse_subitems=False)
