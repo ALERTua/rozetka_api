@@ -11,8 +11,7 @@ assert LANGUAGE, "Please fill the correct LANGUAGE variable"
 COUNTRY = os.getenv('COUNTRY', 'UA')
 assert COUNTRY, "Please fill the correct COUNTRY variable"
 
-DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                     'Chrome/105.0.0.0 Safari/537.36'
+DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0'
 USER_AGENT = os.getenv('USER_AGENT', DEFAULT_USER_AGENT)
 assert USER_AGENT, "Please fill the correct USER_AGENT variable"
 
