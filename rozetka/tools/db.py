@@ -117,50 +117,8 @@ async def health_test():
         return ready
 
 
-async def migrate_data(bucket_name=INFLUXDB_BUCKET, old_bucket_name='Rozetka_old'):
-    async with InfluxDBClientAsync(**INFLUX_KWARGS_ASYNC) as client:
-        ready = await client.ping()
-        if not ready:
-            log.error(f"InfluxDB NOT READY")
-            return
-
-        query_api = client.query_api()
-
-        start_day = 16
-        start_day -= 1
-        while start_day < 1000:
-            start_day += 1
-            stop_day = start_day - 1
-            log.green(f"Day: {start_day}")
-            query = f'from(bucket: "{old_bucket_name}")' \
-                    f' |> range(start: -{start_day}d, stop: -{stop_day}d)' \
-                    f' |> filter(fn: (r) => r._measurement != "test")'
-            results = await query_api.query(query)
-            for result in results:
-                record: FluxRecord
-                for record in result.records:
-                    if record.get_measurement() == 'test':
-                        continue
-
-                    # Convert the point date to UNIX timestamp (assuming it's a timestamp in InfluxDB)
-                    timestamp = record['time']
-                    # Remove the "time" field from the point since it will be automatically added by InfluxDB with the correct timestamp
-                    del record['time']
-
-                    # Write the point into the new bucket with the updated schema
-                    new_point = [
-                        {
-                            "measurement": "goods",
-                            "time": timestamp,
-                            "fields": record
-                        }
-                    ]
-                    client.write_points(new_point, database=bucket_name)
-
-
 if __name__ == "__main__":
     # asyncio.run(empty_bucket(INFLUXDB_BUCKET))
     # recreate_bucket(INFLUXDB_BUCKET)
-    # asyncio.run(migrate_data())
-    asyncio.run(tst_write())
+    # asyncio.run(tst_write())
     pass
