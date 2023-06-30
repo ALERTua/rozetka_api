@@ -5,13 +5,14 @@ description = "Rozetka Python API"
 authors = ["Alexey ALERT Rubasheff <alexey.rubasheff@gmail.com>"]
 readme = "README.rst"
 packages = [{include = "rozetka"}]
+homepage = "https://github.com/ALERTua/rozetka_api"
 keywords = ["rozetka"]
 classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
 [tool.poetry.build]
-generate-setup-file = false
+generate-setup-file = true
 
 [tool.poetry.dependencies]
 python = "^3.10"
