@@ -1,4 +1,4 @@
-FROM python:3.10.6
+FROM python:3.11
 MAINTAINER ALERT <alexey.rubasheff@gmail.com>
 
 # RUN apt-get update && apt-get -y install cron vim && apt-get -y clean && rm -rf /var/lib/apt/lists/*
