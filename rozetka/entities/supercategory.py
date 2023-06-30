@@ -66,26 +66,30 @@ def get_fat_menu_categories():
 
 def get_all_items_recursively() -> List[Item]:
     categories = list(get_all_categories_recursively())
+    categories.sort(key=lambda _: _.id_)
     LOG.green("Got ALL categories recursively")
+
+    all_categories = [_ for _ in categories for _ in _]
+    all_categories_len = len(all_categories)
 
     LOG.green("Getting ALL items recursively")
     # noinspection PyProtectedMember
-    items_ids = tools.fncs_map((cat._get_item_ids for cat in categories)) or []
+    items_ids = tools.fncs_map((_._get_item_ids for _ in all_categories)) or []
     items_ids = list(set(chain(*items_ids)))
-    LOG.debug(f"Got {len(items_ids)} item ids from {len(categories)} categories")
+    LOG.debug(f"Got {len(items_ids)} item ids from {all_categories_len} categories")
     items = Item.parse_multiple(*items_ids, parse_subitems=False)
-    LOG.green(f"Got {len(items)} items from {len(categories)} categories")
+    LOG.green(f"Got {len(items)} items from {all_categories_len} categories")
 
     LOG.green("Getting subitem ids")
-    subitems_ids = list(set(list(chain(*[i.subitem_ids for i in items]))))
-    LOG.debug(f"Got {len(subitems_ids)} subitem ids from {len(categories)} categories")
+    subitems_ids = list(set(list(chain(*[_.subitem_ids for _ in items]))))
+    LOG.debug(f"Got {len(subitems_ids)} subitem ids from {all_categories_len} categories")
     subitems = Item.parse_multiple(*subitems_ids, subitems=True)
-    LOG.debug(f"Got {len(subitems)} subitems from {len(categories)} categories")
+    LOG.debug(f"Got {len(subitems)} subitems from {all_categories_len} categories")
 
     # noinspection PyProtectedMember
     all_items = items + subitems + list(Item._cache.values()) + list(SubItem._cache.values())
     all_items = list(set(all_items))
-    LOG.green(f"Got {len(all_items)} total items from {len(categories)} categories")
+    LOG.green(f"Got {len(all_items)} total items from {all_categories_len} categories")
     return all_items
 
 
@@ -202,11 +206,9 @@ class SuperCategory(Category):
 
 if __name__ == '__main__':
     LOG.verbose = True
-    supercategory = SuperCategory.get(1162030)
-    subs = supercategory.subcategories
-    a = list(supercategory.__iter__())
-    # get_super_category_ids = SuperCategory.get_super_category_ids()
-    # get_super_categories = SuperCategory.get_super_categories()
-    # get_all_categories_recursively = list(SuperCategory.get_all_categories_recursively())
+    ac = list(get_all_categories_recursively())
+    # supercategory = SuperCategory.get(4627893)
+    # subs = supercategory.subcategories
+    # a = list(supercategory.__iter__())
     # all_items_ = SuperCategory.get_all_items_recursively()
     pass
