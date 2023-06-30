@@ -107,7 +107,7 @@ def recreate_bucket(bucket_name=INFLUXDB_BUCKET):
 
 
 async def tst_write():
-    points = [Point('goods').tag('id', '0').field('price', 0)]
+    points = [Point('goods').tag('id_', '0').field('price', 0)]
     return await dump_points_async(record=points)
 
 
