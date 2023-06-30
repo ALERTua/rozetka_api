@@ -60,7 +60,10 @@ class Item:
         if req is None:
             return output
 
-        data: List[dict] = req.json().get('data')
+        try:
+            data: List[dict] = req.json().get('data')
+        except Exception as e:
+            pass
         """
         {
             "id": 280528638,
