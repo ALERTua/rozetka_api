@@ -55,7 +55,11 @@ class Item:
         }
 
         LOG.debug(f"Parsing batch of {len(product_ids)} products")
+        output = []
         req = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS, retry=True)
+        if req is None:
+            return output
+
         data: List[dict] = req.json().get('data')
         """
         {
@@ -190,7 +194,7 @@ class Item:
             }
         }
         """
-        output = []
+
         for item_data in data:
             id_ = item_data.get('id')
             if not id_:

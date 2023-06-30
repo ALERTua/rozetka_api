@@ -57,7 +57,11 @@ class Category:
             }
             url = 'https://xl-catalog-api.rozetka.com.ua/v4/categories/get'
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS, retry=True)
+            if response is None:
+                return
+
             self._data = response.json().get('data', dict()) or dict()
+
         return self._data
 
     @data.setter
@@ -138,7 +142,7 @@ class Category:
         }
         response = tools.get('https://xl-catalog-api.rozetka.com.ua/v4/goods/get', params=params,
                              headers=constants.DEFAULT_HEADERS, retry=True)
-        if response.status_code != 200:
+        if response is None or response.status_code != 200:
             return {}
 
         return response.json()
@@ -288,4 +292,3 @@ if __name__ == '__main__':
     category_ = Category.get(1162030)
     items_ = category_.items
     pass
-

@@ -22,9 +22,12 @@ def get_fat_menu_categories():
         'country': 'UA',
         'lang': 'ua',
     }
+    output = []
     response = tools.get('https://common-api.rozetka.com.ua/v2/fat-menu/full', params=params,
                          headers=constants.DEFAULT_HEADERS, retry=True)
-    output = []
+    if response is None:
+        return output
+
     data: dict = response.json().get('data', dict())
     for div in data.values():
         children = div.get('children', dict())
@@ -110,8 +113,9 @@ def get_super_category_ids():
         url = 'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList'
         response: Response = tools.get(url, headers=constants.DEFAULT_HEADERS, cookies=constants.DEFAULT_COOKIES,
                                        retry=True)
-        if not response.ok:
-            msg = f'Error requesting "{url}": {response.status_code} {response.reason}'
+        if response is None or not response.ok:
+            msg = f'Error requesting "{url}": {response.status_code if response is not None else None} ' \
+                  f'{response.reason if response is not None else None}'
             LOG.error(msg)
             raise Exception(msg)
 
@@ -160,6 +164,9 @@ class SuperCategory(Category):
             }
             url = 'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get'
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS, retry=True)
+            if response is None:
+                return
+
             self._data = response.json().get('data', dict()) or dict()
         return self._data
 
