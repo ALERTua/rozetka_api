@@ -101,7 +101,7 @@ def get(*args, retry=False, max_tries=3, delay=30, **kwargs) -> Response:
 
     if retry:
         i = 0
-        while response is None or not response.ok and response.status_code in (502, ) and (i := i + 1) < max_tries:
+        while response is None or not response.ok and response.status_code in (502, 524, ) and (i := i + 1) < max_tries:
             if response:
                 LOG.error(f"ERROR Requesting {response.request.url} : {response.status_code}. Retrying in {delay}")
             else:
