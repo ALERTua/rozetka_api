@@ -91,16 +91,29 @@ def parse_reviews(reviews_str):
         return int(floats[0])
 
 
-@sleep_and_retry
-@limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD)
+# @sleep_and_retry
+@limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=False)
 def get(*args, retry=False, max_tries=3, delay=30, **kwargs) -> Response:
-    response = requests.get(*args, timeout=60, **kwargs)
+    try:
+        response = requests.get(*args, timeout=120, **kwargs)
+    except Exception as e:
+        response = None
+
     if retry:
         i = 0
-        while not response.ok and response.status_code in (502, ) and (i := i + 1) < max_tries:
-            LOG.error(f"ERROR Requesting {response.request.url} : {response.status_code}. Retrying in {delay}")
+        while response is None or not response.ok and response.status_code in (502, ) and (i := i + 1) < max_tries:
+            if response:
+                LOG.error(f"ERROR Requesting {response.request.url} : {response.status_code}. Retrying in {delay}")
+            else:
+                LOG.error(f"ERROR Requesting {args}. Retrying in {delay}")
+
             time.sleep(delay)
-            response = requests.get(*args, **kwargs)
+            try:
+                response = requests.get(*args, timeout=120, **kwargs)
+            except Exception as e:
+                response = None
+                pass
+
     return response
 
 
@@ -139,4 +152,3 @@ def fncs_map(tuple_of_fncs, *tuple_of_args):
 
 def slice_list(list_, chunk_size):
     return [list_[i:i + chunk_size] for i in range(0, len(list_), chunk_size)]
-
