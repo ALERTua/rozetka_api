@@ -21,7 +21,7 @@ setters = (
 
 def build_item_point(item: Item):
     # item.parse()
-    point = Point(item.id_)
+    point = Point(constants.MEASUREMENT)
     for setter in setters:
         for fld in setter.flds:
             if (item_fld := getattr(item, fld, None)) is not None:

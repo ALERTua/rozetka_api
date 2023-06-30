@@ -44,15 +44,10 @@ SLACK_USER_MENTIONS = os.getenv('SLACK_USER_MENTIONS', '')
 TEAMS_WEBHOOK_URL = os.getenv('TEAMS_WEBHOOK_URL')
 TEAMS_USER_MENTIONS = os.getenv('TEAMS_USER_MENTIONS', '')
 
+MEASUREMENT = os.getenv('MEASUREMENT', 'goods')
+
 DEFAULT_TAGS = [
-    # 'title',
-    # 'href',
-    # 'brand',
-    # 'brand_id',
-    # 'category_id',
-    # 'category',
-    # 'parent_category_id',
-    # 'parent_category',
+    'id_',
 ]
 TAGS = os.getenv('TAGS', DEFAULT_TAGS)
 if isinstance(TAGS, str):
