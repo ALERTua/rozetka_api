@@ -41,11 +41,11 @@ def _main():
     if not healthcheck:
         LOG.error("InfluxDB inaccessible!")
         raise Exception('healthcheck failure')
-
-    healthcheck = asyncio.run(db.tst_write())
-    if not healthcheck:
-        LOG.error("InfluxDB inaccessible!")
-        raise Exception('healthcheck failure')
+    #
+    # healthcheck = asyncio.run(db.tst_write())
+    # if not healthcheck:
+    #     LOG.error("InfluxDB inaccessible!")
+    #     raise Exception('healthcheck failure')
 
     start = pendulum.now()
     LOG.verbose = constants.VERBOSE
