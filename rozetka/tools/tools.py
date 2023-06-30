@@ -93,7 +93,7 @@ def parse_reviews(reviews_str):
 
 # @sleep_and_retry
 @limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=False)
-def get(*args, retry=False, max_tries=3, delay=30, **kwargs) -> Response:
+def get(*args, retry=False, max_tries=10, delay=30, **kwargs) -> Response:
     try:
         response = requests.get(*args, timeout=120, **kwargs)
     except Exception as e:
