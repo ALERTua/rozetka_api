@@ -3,9 +3,52 @@ from rozetka.entities.item import Item
 from rozetka.entities.point import Point
 from rozetka.entities.supercategory import SuperCategory
 
+ITEM_ID = 21155478
+CATEGORY_ID = 146633
+SUPERCATEGORY_ID = 4627893
+
+
+def test_item_getter():
+    item = Item.get(ITEM_ID)
+    assert item._parsed is False
+    item.parse()
+    assert item.brand
+    assert item.brand_id
+    # assert item.category
+    assert item.category_id
+    # assert item.comments_ammount
+    assert item.comments_mark
+    assert item.config
+    assert item.data
+    assert item.discount is not None
+    assert item.docket
+    assert item.group_id
+    assert item.group_name
+    assert item.group_title
+    assert item.groups
+    assert item.href
+    assert item.id_
+    assert item.image_main
+    assert item.images
+    assert item.mpath
+    assert item.old_price is not None
+    assert item.parent_category_id
+    assert item.price is not None
+    assert item.price_pcs is not None
+    # assert item.primary_goods_title
+    assert item.sell_status
+    assert item.seller_id is not None
+    assert item.stars
+    assert item.state
+    assert item.status
+    assert item.subitem_ids
+    assert item.subitems
+    assert item.tag
+    assert item.title
+
 
 def test_subitems():
-    item = Item.get(21155478)
+    item = Item.get(ITEM_ID)
     item.parse()
     subsubitems = []
     subitems = item.subitems
@@ -15,21 +58,21 @@ def test_subitems():
 
 
 def test_cache_item():
-    id_ = 21155478
+    id_ = ITEM_ID
     item1 = Item.get(id_)
     item2 = Item.get(id_)
     assert item1 is item2, "Items of the same id should be the same"
 
 
 def test_cache_category():
-    id_ = 146633
+    id_ = CATEGORY_ID
     category1 = Category.get(id_)
     category2 = Category.get(id_)
     assert category1 is category2, "Categories of the same id should be the same"
 
 
 def test_cache_supercategory():
-    id_ = 4627893
+    id_ = SUPERCATEGORY_ID
     supercategory1 = SuperCategory.get(id_)
     supercategory2 = SuperCategory.get(id_)
     assert supercategory1 is supercategory2, "SuperCategories of the same id should be the same"
