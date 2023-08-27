@@ -237,7 +237,7 @@ class Category:
     def _get_subcategories(self, parent_key='parent_id'):
         if self._subcategories is None:
             if not (subcategories_data := self.subcategories_data):
-                # LOG.debug(f"No subcategories found for  {self}")
+                # LOG.debug(f"No subcategories found for {self}")
                 self._subcategories = []
                 return self._subcategories
 
