@@ -14,6 +14,7 @@ where %DOCKER_EXE% >nul || (
 
 pushd %~dp0
 sc query %DOCKER_SERVICE% | findstr /IC:"running" >nul || (
+    echo starting Docker service %DOCKER_SERVICE%
     sudo net start %DOCKER_SERVICE% || (
         echo "Error starting docker service %DOCKER_SERVICE%
         exit /b
@@ -22,7 +23,12 @@ sc query %DOCKER_SERVICE% | findstr /IC:"running" >nul || (
 
 tasklist | findstr /IC:"Docker Desktop.exe" >nul || (
     start "" "%ProgramFiles%\Docker\Docker\Docker Desktop.exe"
-    timeout /t 60
+    :loop
+        call docker info >nul 2>nul || (
+            timeout /t 1 >nul
+            goto loop
+        )
+    rem timeout /t 60
 )
 
 "%DOCKER_EXE%" build -t %BUILD_TAG% %BUILD_PATH% || exit /b
