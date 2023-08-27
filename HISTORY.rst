@@ -3,6 +3,13 @@ History
 =======
 
 
+1.1.7 (2023-08-27)
+------------------
+
+* Retries remade
+* Parent categories parsing
+
+
 1.1.6 (2023-08-17)
 ------------------
 
