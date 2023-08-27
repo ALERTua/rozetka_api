@@ -1,5 +1,6 @@
 import re
 import time
+from functools import partial
 from itertools import zip_longest
 
 import requests
@@ -92,28 +93,56 @@ def parse_reviews(reviews_str):
 
 
 # @sleep_and_retry
-@limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=False)
-def get(*args, retry=False, max_tries=10, delay=30, **kwargs) -> Response:
+# @limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=True)
+# def _get(*args, retry=False, max_tries=constants.GET_RETRIES, delay=constants.GET_DELAY, **kwargs) -> Response:
+#     try:
+#         response = requests.get(*args, timeout=constants.GET_TIMEOUT, **kwargs)
+#     except Exception as e:
+#         response = None
+#
+#     if retry:
+#         i = 0
+#         while response is None or not response.ok and response.status_code in (502, 524, ) and (i := i + 1) < max_tries:
+#             if response:
+#                 LOG.error(f"ERROR Requesting {response.request.url} {kwargs.get('params', '')}: {response.status_code}."
+#                           f" Retrying in {delay}")
+#             else:
+#                 LOG.error(f"ERROR Requesting {args} {kwargs.get('params', '')}. Retrying in {delay}")
+#
+#             time.sleep(delay)
+#             try:
+#                 response = requests.get(*args, timeout=constants.GET_TIMEOUT, **kwargs)
+#             except Exception as e:
+#                 response = None
+#                 pass
+#
+#         if i >= max_tries:
+#             LOG.error(f"Max tries reached requesting {args}.")
+#     return response
+
+
+@sleep_and_retry
+@limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=True)
+def get(*args, **kwargs) -> Response:
+    i = kwargs.pop('i', 0)
+    i += 1
+    fallback = partial(get, *args, i=i, **kwargs)
     try:
-        response = requests.get(*args, timeout=120, **kwargs)
+        response = requests.get(*args, timeout=constants.GET_TIMEOUT, **kwargs)
     except Exception as e:
-        response = None
+        LOG.error(f"Exception while Requesting {args}: {type(e)} {e}. Retrying {i}")
+        return fallback()
 
-    if retry:
-        i = 0
-        while response is None or not response.ok and response.status_code in (502, 524, ) and (i := i + 1) < max_tries:
-            if response:
-                LOG.error(f"ERROR Requesting {response.request.url} : {response.status_code}. Retrying in {delay}")
-            else:
-                LOG.error(f"ERROR Requesting {args}. Retrying in {delay}")
+    if response is None:
+        LOG.debug(f"Empty response for {args}. Retrying {i}")
+        return fallback()
 
-            time.sleep(delay)
-            try:
-                response = requests.get(*args, timeout=120, **kwargs)
-            except Exception as e:
-                response = None
-                pass
+    if (status := response.status_code) in (500, 502, 503, 504, 508, 521, 522, 524, ):
+        LOG.error(f"Request status {status} for {args}. Retrying {i}")
+        return fallback()
 
+    if i > 1:  # todo: limits?
+        LOG.info(f"Request succeeded after {i} retries {args}")
     return response
 
 

@@ -47,6 +47,16 @@ class Category:
             LOG.debug(f"category iter: yielding from {subcategory}")
             yield from subcategory.__iter__()
 
+    def iter_parents(self):
+        parent = self.parent_category
+        if parent is self:
+            LOG.warning(f"Looped parent detected for {self}")
+        elif parent and parent is not self:
+            LOG.debug(f"category parents iter: yielding {parent}")
+            yield parent
+            LOG.debug(f"category parents iter: yielding parents from {parent}")
+            yield from parent.iter_parents()
+
     @property
     def data(self):
         if self._data is None:
@@ -56,7 +66,7 @@ class Category:
                 'country': constants.COUNTRY,
             }
             url = 'https://xl-catalog-api.rozetka.com.ua/v4/categories/get'
-            response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS, retry=True)
+            response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
             if response is None:
                 return
 
@@ -141,7 +151,7 @@ class Category:
             'page': page,
         }
         response = tools.get('https://xl-catalog-api.rozetka.com.ua/v4/goods/get', params=params,
-                             headers=constants.DEFAULT_HEADERS, retry=True)
+                             headers=constants.DEFAULT_HEADERS)
         if response is None or response.status_code != 200:
             return {}
 

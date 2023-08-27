@@ -56,7 +56,7 @@ class Item:
 
         LOG.debug(f"Parsing batch of {len(product_ids)} products")
         output = []
-        req = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS, retry=True)
+        req = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
         if req is None:
             return output
 
@@ -317,6 +317,11 @@ class SubItem(Item):
 
 
 if __name__ == '__main__':
-    item_ = Item.get(177849232)
+    item_ = Item.get(331350610)
     item_.parse()
+    from rozetka.entities.category import Category
+
+    category = Category.get(2394287)
+    category.parse_items()
+
     pass

@@ -23,9 +23,13 @@ DEFAULT_COOKIES = {
     'visitor_city': "1",
 }
 
-CALLS_MAX = os.getenv('CALLS_MAX', 1000)
+CALLS_MAX = int(os.getenv('CALLS_MAX', 10))
+CALLS_PERIOD = int(os.getenv('CALLS_PERIOD', 1))
 
-CALLS_PERIOD = os.getenv('CALLS_PERIOD', 5)
+# GET_RETRIES = int(os.getenv('GET_RETRIES', 50))
+# GET_DELAY = int(os.getenv('GET_DELAY', 30))
+GET_TIMEOUT = int(os.getenv('GET_TIMEOUT', 60))
+
 
 INFLUXDB_URL = os.getenv('INFLUXDB_URL')
 INFLUXDB_TOKEN = os.getenv('INFLUXDB_TOKEN')
