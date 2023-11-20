@@ -1,11 +1,10 @@
 import re
-import time
 from functools import partial
 from itertools import zip_longest
 
 import requests
 from global_logger import Log
-from ratelimit import limits, sleep_and_retry
+from ratelimit import limits, sleep_and_retry, RateLimitException
 from requests import Response
 # noinspection PyPackageRequirements
 from worker import worker
@@ -124,25 +123,25 @@ def parse_reviews(reviews_str):
 @sleep_and_retry
 @limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=True)
 def get(*args, **kwargs) -> Response:
-    i = kwargs.pop('i', 0)
-    i += 1
-    fallback = partial(get, *args, i=i, **kwargs)
+    allowed_codes = kwargs.pop('allowed_codes', [])
+    sleep_time = constants.GET_RETRY_DELAY_SEC
     try:
         response = requests.get(*args, timeout=constants.GET_TIMEOUT, **kwargs)
     except Exception as e:
-        LOG.error(f"Exception while Requesting {args}: {type(e)} {e}. Retrying {i}")
-        return fallback()
+        msg = f"Exception while Requesting {args}: {type(e)} {e}. Retrying {i}"
+        LOG.error(msg)
+        raise RateLimitException(msg, sleep_time)
 
     if response is None:
-        LOG.debug(f"Empty response for {args}. Retrying {i}")
-        return fallback()
+        msg = f"Empty response for {args}. Retrying {i}"
+        LOG.debug(msg)
+        raise RateLimitException(msg, sleep_time)
 
-    if (status := response.status_code) in (500, 502, 503, 504, 508, 521, 522, 524, ):
-        LOG.error(f"Request status {status} for {args}. Retrying {i}")
-        return fallback()
+    if (status := response.status_code) in (500, 502, 503, 504, 508, 521, 522, 524, *allowed_codes):
+        msg = f"Request status {status} for {args}. Retrying {i}"
+        LOG.error(msg)
+        raise RateLimitException(msg, sleep_time)
 
-    if i > 1:  # todo: limits?
-        LOG.info(f"Request succeeded after {i} retries {args}")
     return response
 
 

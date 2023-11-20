@@ -29,6 +29,7 @@ CALLS_PERIOD = int(os.getenv('CALLS_PERIOD', 1))
 
 # GET_RETRIES = int(os.getenv('GET_RETRIES', 50))
 # GET_DELAY = int(os.getenv('GET_DELAY', 30))
+GET_RETRY_DELAY_SEC = int(os.getenv('GET_RETRY_DELAY_SEC', 10))
 GET_TIMEOUT = int(os.getenv('GET_TIMEOUT', 60))
 
 
