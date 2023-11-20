@@ -300,6 +300,8 @@ class Category:
 
 if __name__ == '__main__':
     LOG.verbose = True
-    category_ = Category.get(1162030)
+    category_ = Category.get(4658162)
+    iids = category_.items_ids
+    a = Item.parse_multiple(*iids, parse_subitems=False)
     items_ = category_.items
     pass

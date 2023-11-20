@@ -57,13 +57,17 @@ class Item:
         LOG.debug(f"Parsing batch of {len(product_ids)} products")
         output = []
         req = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
+        if req.status_code != 200:
+            LOG.error(f"Error while parsing batch of {len(product_ids)} products: {req.status_code}: {req.reason}")
+            return output
+
         if req is None:
             return output
 
         try:
             data: List[dict] = req.json().get('data')
         except Exception as e:
-            pass
+            data = []
         """
         {
             "id": 280528638,
@@ -227,9 +231,10 @@ class Item:
             product_ids = product_ids[0]
 
         product_ids_str = [str(i) for i in product_ids]
-        chunk_size = 900
+        chunk_size = constants.BULK_ITEMS_REQUEST_MAX_LENGTH
         chunked_lists = tools.slice_list(product_ids_str, chunk_size)
         LOG.debug(f"Parsing {len(product_ids)} products divided into {len(chunked_lists)} batches by {chunk_size} each")
+        outputs = Item._parse_batch(*chunked_lists[0], subitems=subitems, parse_subitems=parse_subitems)
         outputs = tools.fnc_map(Item._parse_batch, *chunked_lists, subitems=subitems, parse_subitems=parse_subitems)
         outputs = [i for i in outputs if i]
         output = []

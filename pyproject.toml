@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rozetka-api"
-version = "1.1.9"
+version = "1.2.0"
 description = "Rozetka Python API"
 authors = ["Alexey ALERT Rubasheff <alexey.rubasheff@gmail.com>"]
 readme = "README.rst"
