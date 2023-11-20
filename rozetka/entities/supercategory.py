@@ -68,6 +68,7 @@ def get_all_items_recursively(loop=False) -> List[Item]:
     if loop:
         return list()
 
+    _ = get_super_category_ids()
     categories = list(get_all_categories_recursively())
     all_categories = list(set(categories))
     all_categories.sort(key=lambda _: _.id_)
