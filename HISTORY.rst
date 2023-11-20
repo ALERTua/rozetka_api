@@ -3,6 +3,14 @@ History
 =======
 
 
+1.1.8 (2023-10-20)
+------------------
+
+* Subcategories precautions
+* Poetry venv and requirements
+* Poetry-based Dockerfile
+
+
 1.1.7 (2023-08-27)
 ------------------
 

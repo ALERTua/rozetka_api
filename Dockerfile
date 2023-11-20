@@ -1,29 +1,72 @@
-FROM python:3.11
+FROM python:3.11.6-slim as python-base
 MAINTAINER ALERT <alexey.rubasheff@gmail.com>
+# multidict doesn't support 3.12 yet
 
-# RUN apt-get update && apt-get -y install cron vim && apt-get -y clean && rm -rf /var/lib/apt/lists/*
+ENV \
+    BASE_DIR=/app \
+    SOURCE_DIR_NAME=rozetka
 
-WORKDIR /app
+WORKDIR $BASE_DIR
 
-COPY requirements.txt /app/
-RUN pip install --progress-bar=off --no-cache-dir -U pip setuptools wheel && pip install --progress-bar=off --no-cache-dir -r /app/requirements.txt
+ENV \
+    # Python
+    PYTHONUNBUFFERED=1 \
+    PYTHONIOENCODING=utf-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    # pip
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    # poetry
+    POETRY_HOME="$BASE_DIR/poetry" \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    # venv and requirements path
+    VIRTUAL_ENV="$BASE_DIR/venv" \
+    # cache path is HOME/.cache
+    CACHE_PATH="/root/.cache" \
+    SOURCE_PATH="$BASE_DIR/$SOURCE_DIR_NAME"
 
-# COPY crontab /etc/cron.d/crontab
-# RUN chmod 0644 /etc/cron.d/crontab
+ENV PATH="$POETRY_HOME/bin:$VIRTUAL_ENV/bin:$PATH"
 
-COPY entrypoint.sh /app/
-RUN chmod +x /app/entrypoint.sh
+RUN python -m venv $VIRTUAL_ENV
 
-COPY rozetka /app/rozetka/
+ENV PYTHONPATH="$BASE_DIR:$PYTHONPATH"
 
-# RUN /usr/bin/crontab /etc/cron.d/crontab
 
-ENV PYTHONIOENCODING=utf-8
-ENV LC_ALL=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8
-ENV PYTHONUNBUFFERED=1
+FROM python-base as builder-base
 
-# run crond as main process of container
-# CMD ["cron", "-f"]
-CMD ["/app/entrypoint.sh"]
+RUN apt-get update && \
+    apt-get install -y curl
+
+RUN --mount=type=cache,target=$CACHE_PATH \
+    curl -sSL https://install.python-poetry.org | python -
+
+WORKDIR $BASE_DIR
+
+COPY poetry.lock pyproject.toml ./
+
+RUN --mount=type=cache,target=$CACHE_PATH \
+    poetry install --no-root --only main
+
+
+FROM builder-base as development
+
+WORKDIR $BASE_DIR
+
+RUN --mount=type=cache,target=$CACHE_PATH \
+    poetry install --no-root
+
+CMD ["bash"]
+
+
+FROM python-base as production
+
+COPY --from=builder-base $POETRY_HOME $POETRY_HOME
+COPY --from=builder-base $VIRTUAL_ENV $VIRTUAL_ENV
+
+WORKDIR $BASE_DIR
+
+COPY poetry.lock pyproject.toml ./
+COPY $SOURCE_DIR_NAME ./$SOURCE_DIR_NAME/
+
+CMD ["sh", "-c", "python -m $SOURCE_DIR_NAME.runners.parse_api"]

@@ -211,7 +211,9 @@ class SuperCategory(Category):
 
             category_tree: dict = category_trees[0]
             content: dict = category_tree.get('content', dict())
-            self._subcategories_data = output = content.get('items', list())
+            output = content.get('items', list())
+            output = [_ for _ in output if isinstance(_, dict)]
+            self._subcategories_data = output
             LOG.debug(f"Got {len(output)} subcategories data for {self}")
         return self._subcategories_data
 
@@ -226,8 +228,9 @@ class SuperCategory(Category):
 
 if __name__ == '__main__':
     LOG.verbose = False
-    all_items_ = get_all_items_recursively()
-    supercategory = SuperCategory.get(2394287)
+    # all_items_ = get_all_items_recursively()
+    supercategory = SuperCategory.get(4625734)
+    supercategory.subcategories_data
     iids = supercategory.items_ids
     supers = get_super_categories()
     ac = list(get_all_categories_recursively())

@@ -262,6 +262,7 @@ class Category:
                     true_cat = Category.get(parent_category_id)
                     true_cat.subcategories_data = true_cat.subcategories_data or []
                     true_cat.subcategories_data.append(pop)
+                    true_cat.subcategories_data = [_ for _ in true_cat.subcategories_data if isinstance(_, dict)]
                     true_cat.subcategories_data.sort(key=lambda i: i.get('id', 0))
                     true_subcategories_data = []
                     for data in true_cat.subcategories_data:
