@@ -1,7 +1,9 @@
 import asyncio
+from copy import copy
 
 import pendulum
-import requests
+from curl_cffi import requests
+
 from global_logger import Log
 from knockknock import telegram_sender, discord_sender, slack_sender, teams_sender
 from progress.bar import Bar
@@ -31,16 +33,30 @@ def build_item_point(item: Item):
 
 
 def _main():
-    try:
-        requests.get('https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList')
-    except Exception as e:
-        LOG.exception("Rozetka unavailable", exc_info=e)
-        raise Exception('healthcheck failure')
+    checks = [
+        'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList',
+        'https://rozetka.com.ua',
+    ]
+    cookies = copy(constants.DEFAULT_COOKIES)
+    cookies['city_id'] = "b205dde2-2e2e-4eb9-aef2-a67c82bbdf27"
+    for check in checks:
+        try:
+            req = requests.get(check, headers=constants.DEFAULT_HEADERS, cookies=cookies, impersonate="chrome110")
+        except Exception as e:
+            msg = f"Rozetka unavailable: {type(e)} {e}"
+            LOG.exception(msg, exc_info=True)
+            raise Exception(msg)
+
+        if not req.ok:
+            msg = f"Rozetka Unavailable: {req.status_code} {req.reason}"
+            LOG.error(msg)
+            raise Exception(msg)
 
     healthcheck = asyncio.run(db.health_test())
     if not healthcheck:
-        LOG.error("InfluxDB inaccessible!")
-        raise Exception('healthcheck failure')
+        msg = "InfluxDB inaccessible!"
+        LOG.error(msg)
+        raise Exception(msg)
 
     start = pendulum.now()
     LOG.verbose = constants.VERBOSE

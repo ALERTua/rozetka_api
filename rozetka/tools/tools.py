@@ -2,7 +2,7 @@ import re
 from functools import partial
 from itertools import zip_longest
 
-import requests
+from curl_cffi import requests
 from global_logger import Log
 from ratelimit import limits, sleep_and_retry, RateLimitException
 from requests import Response

@@ -16,7 +16,12 @@ USER_AGENT = os.getenv('USER_AGENT', DEFAULT_USER_AGENT)
 assert USER_AGENT, "Please fill the correct USER_AGENT variable"
 
 DEFAULT_HEADERS = {
+    'Referer': 'https://rozetka.ua/',
     'User-Agent': USER_AGENT,
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'uk,en-US;q=0.8,en;q=0.5,ru;q=0.3',
+    'Connection': 'keep-alive',
 }
 
 DEFAULT_COOKIES = {
