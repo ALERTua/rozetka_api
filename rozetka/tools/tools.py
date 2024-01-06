@@ -127,17 +127,17 @@ def get(*args, **kwargs) -> Response:
     try:
         response = requests.get(*args, timeout=constants.GET_TIMEOUT, impersonate="chrome110", **kwargs)
     except Exception as e:
-        msg = f"Exception while Requesting {args}: {type(e)} {e}. Retrying {i}"
+        msg = f"Exception while Requesting {args}: {type(e)} {e}. Retrying"
         LOG.error(msg)
         raise RateLimitException(msg, sleep_time)
 
     if response is None:
-        msg = f"Empty response for {args}. Retrying {i}"
+        msg = f"Empty response for {args}. Retrying"
         LOG.debug(msg)
         raise RateLimitException(msg, sleep_time)
 
     if (status := response.status_code) in (500, 502, 503, 504, 508, 521, 522, 524, *allowed_codes):
-        msg = f"Request status {status} for {args}. Retrying {i}"
+        msg = f"Request status {status} for {args}. Retrying"
         LOG.error(msg)
         raise RateLimitException(msg, sleep_time)
 
