@@ -125,7 +125,7 @@ def get(*args, **kwargs) -> Response:
     allowed_codes = kwargs.pop('allowed_codes', [])
     sleep_time = constants.GET_RETRY_DELAY_SEC
     try:
-        response = requests.get(*args, timeout=constants.GET_TIMEOUT, impersonate="chrome110", **kwargs)
+        response = requests.get(*args, timeout=constants.GET_TIMEOUT, impersonate=constants.IMPERSONATE, **kwargs)
     except Exception as e:
         msg = f"Exception while Requesting {args}: {type(e)} {e}. Retrying"
         LOG.error(msg)
