@@ -217,7 +217,7 @@ class Item:
 
             if parse_subitems:
                 output.extend(item.subitems)
-        LOG.debug(f"Parsing batch of {len(product_ids)} products done. Got {len(output)} Items")
+        # LOG.debug(f"Parsing batch of {len(product_ids)} products done. Got {len(output)} Items")
         return output
 
     @staticmethod
