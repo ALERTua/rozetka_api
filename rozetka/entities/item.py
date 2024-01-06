@@ -54,7 +54,7 @@ class Item:
             'product_ids': ",".join(product_ids),
         }
 
-        LOG.debug(f"Parsing batch of {len(product_ids)} products")
+        # LOG.debug(f"Parsing batch of {len(product_ids)} products")
         output = []
         req = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
         if req.status_code != 200:
