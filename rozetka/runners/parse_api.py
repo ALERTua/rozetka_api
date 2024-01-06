@@ -41,7 +41,7 @@ def _main():
     cookies['city_id'] = "b205dde2-2e2e-4eb9-aef2-a67c82bbdf27"
     for check in checks:
         try:
-            req = requests.get(check, headers=constants.DEFAULT_HEADERS, cookies=cookies, impersonate="chrome110")
+            req = tools.get(check, headers=constants.DEFAULT_HEADERS, cookies=cookies)
         except Exception as e:
             msg = f"Rozetka unavailable: {type(e)} {e}"
             LOG.exception(msg, exc_info=True)
