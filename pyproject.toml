@@ -21,7 +21,7 @@ include = ["HISTORY.rst"]
 generate-setup-file = true
 
 [tool.poetry.dependencies]
-python = "^3.11.6,<3.12"
+python = "^3.11.3,<3.12"
 pendulum = ">=3.0.0"
 pip = "*"
 requests = "*"
