@@ -1,6 +1,9 @@
 Rozetka.ua Python API
 ---------------------
 
+Hey-hey, Rozetka employee, I mean no harm. I just wanna know whether your discounts are real. Luvz.
+
+
 Examples
 ^^^^^^^^
 
