@@ -1,5 +1,4 @@
 import re
-from functools import partial
 from itertools import zip_longest
 
 from curl_cffi import requests
