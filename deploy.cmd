@@ -5,12 +5,12 @@ set IMAGE_NAME=rozetka
 set IMAGE_TAG=latest
 set BUILD_TAG=%DOCKER_REGISTRY%/%IMAGE_NAME%:%IMAGE_TAG%
 set BUILD_PATH=.
+set DOCKER_EXE=docker
 rem set DOCKER_OPTS=--insecure-registry=%DOCKER_REGISTRY%
 set DOCKER_OPTS=--max-concurrent-uploads=10 --max-concurrent-downloads=10
 
 if not defined DOCKER_REMOTE (
     set DOCKER_SERVICE=com.docker.service
-    set DOCKER_EXE=docker
     where %DOCKER_EXE% >nul || (
         set "DOCKER_EXE=%ProgramFiles%\Docker\Docker\resources\bin\docker.exe"
     )
