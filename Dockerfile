@@ -1,6 +1,6 @@
 FROM python:3.11.6-slim as python-base
-MAINTAINER ALERT <alexey.rubasheff@gmail.com>
 # multidict doesn't support 3.12 yet
+LABEL maintainer="ALERT <alexey.rubasheff@gmail.com>"
 
 ENV \
     BASE_DIR=/app \
