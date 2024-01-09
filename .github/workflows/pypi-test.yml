@@ -1,14 +1,8 @@
 # https://github.com/marketplace/actions/publish-python-poetry-package
 name: PyPi Test Package
 on:
-    push:
-        branches:
-            - main
-            - develop
-    pull_request:
-        branches:
-            - main
-            - develop
+  workflow_dispatch:
+    
 jobs:
   build:
     runs-on: ubuntu-latest
