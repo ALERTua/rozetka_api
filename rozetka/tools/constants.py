@@ -11,17 +11,13 @@ assert LANGUAGE, "Please fill the correct LANGUAGE variable"
 COUNTRY = os.getenv('COUNTRY', 'UA')
 assert COUNTRY, "Please fill the correct COUNTRY variable"
 
-DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0'
-USER_AGENT = os.getenv('USER_AGENT', DEFAULT_USER_AGENT)
-assert USER_AGENT, "Please fill the correct USER_AGENT variable"
-
 DEFAULT_HEADERS = {
-    'Referer': 'https://rozetka.ua/',
-    'User-Agent': USER_AGENT,
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'uk,en-US;q=0.8,en;q=0.5,ru;q=0.3',
-    'Connection': 'keep-alive',
+    # 'Referer': 'https://rozetka.ua/',
+    # 'User-Agent': USER_AGENT,
+    # 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    # 'Accept-Encoding': 'gzip, deflate, br',
+    # 'Accept-Language': 'uk,en-US;q=0.8,en;q=0.5,ru;q=0.3',
+    # 'Connection': 'keep-alive',
 }
 
 DEFAULT_COOKIES = {
@@ -33,11 +29,8 @@ BULK_ITEMS_REQUEST_MAX_LENGTH = 60
 CALLS_MAX = int(os.getenv('CALLS_MAX', 10))
 CALLS_PERIOD = int(os.getenv('CALLS_PERIOD', 1))
 
-# GET_RETRIES = int(os.getenv('GET_RETRIES', 50))
-# GET_DELAY = int(os.getenv('GET_DELAY', 30))
 GET_RETRY_DELAY_SEC = int(os.getenv('GET_RETRY_DELAY_SEC', 10))
 GET_TIMEOUT = int(os.getenv('GET_TIMEOUT', 60))
-
 
 INFLUXDB_URL = os.getenv('INFLUXDB_URL')
 INFLUXDB_TOKEN = os.getenv('INFLUXDB_TOKEN')
