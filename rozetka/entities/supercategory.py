@@ -26,6 +26,11 @@ def get_fat_menu_categories():
     response = tools.get('https://common-api.rozetka.com.ua/v2/fat-menu/full', params=params,
                          headers=constants.DEFAULT_HEADERS)
     if response is None:
+        LOG.error(f"get_fat_menu_categories: response is None")
+        return output
+
+    if not response.ok:
+        LOG.error(f"get_fat_menu_categories: response not ok: {response.status_code} {response.reason}")
         return output
 
     data: dict = response.json().get('data', dict())
@@ -229,12 +234,13 @@ class SuperCategory(Category):
 
 if __name__ == '__main__':
     LOG.verbose = False
+    # get_fat_menu_categories()
     # all_items_ = get_all_items_recursively()
-    supercategory = SuperCategory.get(4625734)
-    supercategory.subcategories_data
-    iids = supercategory.items_ids
-    supers = get_super_categories()
-    ac = list(get_all_categories_recursively())
+    # supercategory = SuperCategory.get(4625734)
+    # supercategory.subcategories_data
+    # iids = supercategory.items_ids
+    # supers = get_super_categories()
+    # ac = list(get_all_categories_recursively())
     # supercategory = SuperCategory.get(4627893)
     # subs = supercategory.subcategories
     # a = list(supercategory.__iter__())
