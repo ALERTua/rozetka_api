@@ -25,9 +25,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: downcase github.repository
+      - name: lowercase github.repository
+#        run: |
+#          echo "IMAGE_NAME=`echo ${{github.repository}} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
         run: |
-          echo "IMAGE_NAME=`echo ${{github.repository}} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY@L}" >> ${GITHUB_ENV}
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
