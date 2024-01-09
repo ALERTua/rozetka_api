@@ -16,6 +16,10 @@ include = ["HISTORY.rst"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/ALERTua/rozetka_api/issues"
+"Rozetka API" = "https://github.com/ALERTua/rozetka_api"
+"Rozetka Keepa" = "https://github.com/ALERTua/rozetka_keepa"
+"Rozetka FastAPI" = "https://github.com/ALERTua/rozetka_fastapi"
+"Rozetka UserScript" = "https://github.com/ALERTua/rozetka_userscript"
 
 [tool.poetry.build]
 generate-setup-file = true
