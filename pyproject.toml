@@ -33,7 +33,7 @@ ratelimit = "*"
 python-worker = "*"
 knockknock = "*"
 influxdb-client = {version = "*", extras = ["async"]}
-curl-cffi = ">=0.5.10"
+curl-cffi = {version = "*", allow-prereleases = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"

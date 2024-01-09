@@ -27,7 +27,7 @@ DEFAULT_HEADERS = {
 DEFAULT_COOKIES = {
     'visitor_city': "1",
 }
-IMPERSONATE = os.getenv('IMPERSONATE', 'chrome110')
+IMPERSONATE = os.getenv('IMPERSONATE', 'chrome120')
 BULK_ITEMS_REQUEST_MAX_LENGTH = 60
 
 CALLS_MAX = int(os.getenv('CALLS_MAX', 10))
