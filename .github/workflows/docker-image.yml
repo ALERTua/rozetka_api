@@ -15,7 +15,6 @@ jobs:
 
   build-and-publish-latest:
     runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/main'  # Running this job only for main branch
 
     permissions:
       contents: read
@@ -25,19 +24,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: lowercase github.repository
-        run: |
-          echo "IMAGE_NAME=${GITHUB_REPOSITORY@L}" >> ${GITHUB_ENV}
-
       - name: Generate Docker metadata
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         with:
 #            docker.io/${{ github.repository }}
           images: |
             ghcr.io/${{ github.repository }}
-#          images: |
-#            ghcr.io/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
@@ -70,10 +63,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-#      - name: Build and push Docker image Latest
-#        uses: docker/build-push-action@v5
-#        with:
-#          context: .
-#          push: true
-#          tags: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
