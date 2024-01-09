@@ -24,3 +24,9 @@ jobs:
             - name: print-IMAGE_NAME
               run: |
                   echo "${{ env.IMAGE_NAME }}"
+            - id: lower-repo
+              run: |
+                echo "LOWER_IMAGE=${GITHUB_REPOSITORY@L}" >> ${GITHUB_ENV}
+            - name: print-lower-repo
+              run: |
+                  echo "${{ env.LOWER_IMAGE }}"
