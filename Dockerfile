@@ -78,4 +78,4 @@ WORKDIR $BASE_DIR
 COPY poetry.lock pyproject.toml ./
 COPY $SOURCE_DIR_NAME ./$SOURCE_DIR_NAME/
 
-ENTRYPOINT ["dumb-init", "python -m $SOURCE_DIR_NAME.runners.parse_api"]
+ENTRYPOINT ["sh", "-c", "python -m $SOURCE_DIR_NAME.runners.parse_api"]
