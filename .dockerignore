@@ -1,3 +1,6 @@
+*.session
+litellm_uuid.txt
+
 # Git
 .git/
 .gitignore
