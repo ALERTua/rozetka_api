@@ -13,6 +13,6 @@ jobs:
         uses: JRubics/poetry-publish@v1.17
         with:
           pypi_token: ${{ secrets.PYPI_TEST_TOKEN }}
-          python_version: "3.11"
+          python_version: "3.12"
           repository_name: "testpypi"
           repository_url: "https://test.pypi.org/legacy/"
