@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rozetka-api"
-version = "1.5.1"
+version = "1.6.0"
 description = "Rozetka Python API"
 authors = ["Alexey ALERT Rubasheff <alexey.rubasheff@gmail.com>"]
 readme = "README.rst"
@@ -25,7 +25,7 @@ include = ["HISTORY.rst"]
 generate-setup-file = true
 
 [tool.poetry.dependencies]
-python = "^3.11.3,<3.12"
+python = "^3.12"
 pendulum = ">=3.0.0"
 pip = "*"
 requests = "*"
