@@ -34,8 +34,9 @@ ENV PYTHONPATH="$BASE_DIR:$PYTHONPATH"
 
 FROM python-base as builder-base
 
+# gcc build-essential are for aiocsv
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl gcc build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
