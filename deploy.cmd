@@ -1,4 +1,6 @@
 @echo off
+poetry check || exit /b
+
 set DOCKER_BUILDKIT=1
 set DOCKER_REGISTRY=registry.alertua.duckdns.org
 echo DOCKER_REGISTRY: %DOCKER_REGISTRY%
