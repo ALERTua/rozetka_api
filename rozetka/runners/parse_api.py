@@ -61,11 +61,11 @@ def _main():
     start = pendulum.now()
     LOG.verbose = constants.VERBOSE
 
-    all_item_ids, _ = get_all_item_ids_recursively()
+    all_item_ids, all_categories_len = get_all_item_ids_recursively()
     chunked_items_ids = tools.slice_list(all_item_ids, 10000)
     overal_length = 0
     for chunked_item_ids in Bar(f"Dumping {len(chunked_items_ids)} point chunks").iter(chunked_items_ids):
-        all_items = get_all_items_recursively(chunked_item_ids)
+        all_items = get_all_items_recursively(items_ids=chunked_item_ids, all_categories_len=all_categories_len)
         LOG.green(f"Building points for {len(all_items)} items")
         points = list(map(build_item_point, all_items))
         LOG.green(f"Dumping {len(points)} points")
