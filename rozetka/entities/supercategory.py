@@ -69,10 +69,7 @@ def get_fat_menu_categories():
     return output
 
 
-def get_all_items_recursively(loop=False) -> List[Item]:
-    if loop:
-        return list()
-
+def get_all_item_ids_recursively():
     _ = get_super_category_ids()
     categories = list(get_all_categories_recursively())
     all_categories = list(set(categories))
@@ -85,6 +82,16 @@ def get_all_items_recursively(loop=False) -> List[Item]:
     items_ids = tools.fncs_map((_._get_item_ids for _ in all_categories)) or []
     items_ids = list(set(chain(*items_ids)))
     LOG.green(f"Got {len(items_ids)} item ids from {all_categories_len} categories")
+    return items_ids, all_categories_len
+
+
+def get_all_items_recursively(loop=False, items_ids=None, all_categories_len=None) -> List[Item]:
+    if loop:
+        return list()
+
+    if items_ids is None:
+        items_ids, all_categories_len = get_all_item_ids_recursively()
+
     items = Item.parse_multiple(*items_ids, parse_subitems=False)
     LOG.green(f"Got {len(items)} items from {all_categories_len} categories")
 

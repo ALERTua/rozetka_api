@@ -10,7 +10,7 @@ from progress.bar import Bar
 
 from rozetka.entities.item import Item
 from rozetka.entities.point import Point
-from rozetka.entities.supercategory import get_all_items_recursively
+from rozetka.entities.supercategory import get_all_items_recursively, get_all_item_ids_recursively
 from rozetka.tools import db, constants, tools
 
 LOG = Log.get_logger()
@@ -61,19 +61,23 @@ def _main():
     start = pendulum.now()
     LOG.verbose = constants.VERBOSE
 
-    all_items = get_all_items_recursively()
+    all_item_ids, _ = get_all_item_ids_recursively()
+    chunked_items_ids = tools.slice_list(all_item_ids, 10000)
+    overal_length = 0
+    for chunked_item_ids in Bar(f"Dumping {len(chunked_items_ids)} point chunks").iter(chunked_items_ids):
+        all_items = get_all_items_recursively(chunked_item_ids)
+        LOG.green(f"Building points for {len(all_items)} items")
+        points = list(map(build_item_point, all_items))
+        LOG.green(f"Dumping {len(points)} points")
+        # https://docs.influxdata.com/influxdb/v2.4/write-data/best-practices/optimize-writes/
+        chunked_points = tools.slice_list(points, 5000)
+        for chunked_points_item in Bar(f"Dumping {len(chunked_points)} point chunks").iter(chunked_points):
+            asyncio.run(db.dump_points_async(record=chunked_points_item))
 
-    LOG.green(f"Building points for {len(all_items)} items")
-    points = list(map(build_item_point, all_items))
-    LOG.green(f"Dumping {len(points)} points")
-    # https://docs.influxdata.com/influxdb/v2.4/write-data/best-practices/optimize-writes/
-    chunked_points = tools.slice_list(points, 5000)
-    for chunked_points_item in Bar(f"Dumping {len(chunked_points)} point chunks").iter(chunked_points):
-        asyncio.run(db.dump_points_async(record=chunked_points_item))
-
+        overal_length += len(points)
     duration = pendulum.now().diff_for_humans(start)
-    LOG.green(f"Duration: {duration}")
-    return len(points)
+    LOG.green(f"Points: {overal_length}, Duration: {duration}")
+    return overal_length
 
 
 def main():
