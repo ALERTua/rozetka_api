@@ -2,13 +2,13 @@ import asyncio
 from copy import copy
 
 import pendulum
-from curl_cffi import requests
 
 from global_logger import Log
 from knockknock import telegram_sender, discord_sender, slack_sender, teams_sender
 from progress.bar import Bar
 
-from rozetka.entities.item import Item
+from rozetka.entities.item import Item, SubItem
+from rozetka.entities.category import Category
 from rozetka.entities.point import Point
 from rozetka.entities.supercategory import get_all_items_recursively, get_all_item_ids_recursively
 from rozetka.tools import db, constants, tools
@@ -65,9 +65,13 @@ def _main():
     chunked_items_ids = tools.slice_list(all_item_ids, 10000)
     overal_length = 0
     for chunked_item_ids in Bar(f"Dumping {len(chunked_items_ids)} point chunks").iter(chunked_items_ids):
+        Item._cache = {}
+        SubItem._cache = {}
+        Category._cache = {}
         all_items = get_all_items_recursively(items_ids=chunked_item_ids, all_categories_len=all_categories_len)
         LOG.green(f"Building points for {len(all_items)} items")
         points = list(map(build_item_point, all_items))
+        del all_items
         LOG.green(f"Dumping {len(points)} points")
         # https://docs.influxdata.com/influxdb/v2.4/write-data/best-practices/optimize-writes/
         chunked_points = tools.slice_list(points, 5000)
