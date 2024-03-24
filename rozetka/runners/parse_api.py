@@ -8,6 +8,7 @@ from knockknock import telegram_sender, discord_sender, slack_sender, teams_send
 from progress.bar import Bar
 
 from rozetka.entities.item import Item, SubItem
+from rozetka.entities.supercategory import SuperCategory
 from rozetka.entities.category import Category
 from rozetka.entities.point import Point
 from rozetka.entities.supercategory import get_all_items_recursively, get_all_item_ids_recursively
@@ -62,16 +63,19 @@ def _main():
     LOG.verbose = constants.VERBOSE
 
     all_item_ids, all_categories_len = get_all_item_ids_recursively()
+    LOG.green(f"Got {len(all_item_ids)} item ids in {pendulum.now().diff_for_humans(start)}")
     chunked_items_ids = tools.slice_list(all_item_ids, 10000)
+    del all_item_ids
+
     overal_length = 0
     for chunked_item_ids in Bar(f"Dumping {len(chunked_items_ids)} point chunks").iter(chunked_items_ids):
         Item._cache = {}
         SubItem._cache = {}
         Category._cache = {}
+        SuperCategory._cache = {}
         all_items = get_all_items_recursively(items_ids=chunked_item_ids, all_categories_len=all_categories_len)
         LOG.green(f"Building points for {len(all_items)} items")
         points = list(map(build_item_point, all_items))
-        del all_items
         LOG.green(f"Dumping {len(points)} points")
         # https://docs.influxdata.com/influxdb/v2.4/write-data/best-practices/optimize-writes/
         chunked_points = tools.slice_list(points, 5000)
@@ -79,8 +83,8 @@ def _main():
             asyncio.run(db.dump_points_async(record=chunked_points_item))
 
         overal_length += len(points)
-    duration = pendulum.now().diff_for_humans(start)
-    LOG.green(f"Points: {overal_length}, Duration: {duration}")
+
+    LOG.green(f"Points: {overal_length}, Duration: {pendulum.now().diff_for_humans(start)}")
     return overal_length
 
 
