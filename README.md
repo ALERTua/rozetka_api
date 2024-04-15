@@ -5,17 +5,14 @@ Hey-hey, Rozetka employee, I mean no harm. I just wanna know whether your discou
 
 Do not forget to run with `--init` for SIGTERM to correctly forward to child processes.
 
-Examples
-^^^^^^^^
+### Examples
 
 rozetka/examples/example_item.py
 
 rozetka/examples/example_category.py
 
-Github
-^^^^^^^^
+### Github
 https://github.com/ALERTua/rozetka_api
 
-PyPi
-^^^^^^^^
+### PyPi
 https://pypi.org/project/rozetka-api/
