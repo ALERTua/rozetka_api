@@ -27,7 +27,6 @@ generate-setup-file = true
 [tool.poetry.dependencies]
 python = "^3.12"
 pendulum = ">=3.0.0"
-pip = "*"
 requests = "*"
 pathlib = "*"
 aiohttp-retry = "*"
@@ -41,6 +40,7 @@ curl-cffi = {version = "*", allow-prereleases = true}
 
 [tool.poetry.group.dev.dependencies]
 poetry = "^1.8.2"
+pip = "*"
 pytest = "*"
 
 [tool.poetry-dynamic-versioning]
