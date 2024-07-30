@@ -163,7 +163,9 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
 def fncs_map(tuple_of_fncs, *tuple_of_args):
     workers = []
     for fnc, fnc_args in zip_longest(tuple_of_fncs, tuple_of_args):
-        while len(ThreadWorkerManager.list(active_only=True)) > 100:
+        while ((active_workers := ThreadWorkerManager.list(active_only=True))
+               and ((workers_len := len(active_workers)) > 100)):
+            LOG.info(f"{workers_len} active workers. Waiting...")
             ThreadWorkerManager.wait(wait_all=True)
 
         @worker
