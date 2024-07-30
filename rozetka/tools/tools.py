@@ -6,7 +6,7 @@ from global_logger import Log
 from ratelimit import limits, sleep_and_retry, RateLimitException
 from requests import Response
 # noinspection PyPackageRequirements
-from worker import worker
+from worker import worker, ThreadWorkerManager
 
 from rozetka.tools import constants
 
@@ -163,7 +163,10 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
 def fncs_map(tuple_of_fncs, *tuple_of_args):
     workers = []
     for fnc, fnc_args in zip_longest(tuple_of_fncs, tuple_of_args):
-        @worker(multiproc=True)
+        while len(ThreadWorkerManager.list(active_only=True)) > 100:
+            ThreadWorkerManager.wait(wait_all=True)
+
+        @worker
         def _worker(*worker_args):
             return fnc(*worker_args)
 
