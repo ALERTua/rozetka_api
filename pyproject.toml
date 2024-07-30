@@ -26,22 +26,20 @@ generate-setup-file = true
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pendulum = ">=3.0.0"
-requests = "*"
-pathlib = "*"
-aiohttp-retry = "*"
-global-logger = "*"
-progress = "*"
-ratelimit = "*"
-python-worker = "*"
-knockknock = "*"
-influxdb-client = {version = "*", extras = ["async"]}
-curl-cffi = {version = "*", allow-prereleases = true}
+pendulum = "^3.0.0"
+requests = "^2.32.3"
+aiohttp-retry = "^2.8.3"
+global-logger = "^0.4.2"
+progress = "^1.6"
+ratelimit = "^2.2.1"
+python-worker = "^2.2.2"
+knockknock = "^0.1.8.1"
+influxdb-client = {version = "^1.44.0", extras = ["async"]}
+curl-cffi = {version = "^0.7.1", allow-prereleases = true}
 
 [tool.poetry.group.dev.dependencies]
-poetry = "^1.8.2"
-pip = "*"
-pytest = "*"
+poetry = "^1.8.3"
+pytest = "^8.3.2"
 
 [tool.poetry-dynamic-versioning]
 enable = true
@@ -51,3 +49,7 @@ style = "semver"
 [build-system]
 requires = ["poetry-core", "poetry-dynamic-versioning"]
 build-backend = "poetry_dynamic_versioning.backend"
+
+[virtualenvs]
+create = true
+in-project = true
