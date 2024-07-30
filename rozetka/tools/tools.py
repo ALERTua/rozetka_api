@@ -163,7 +163,7 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
 def fncs_map(tuple_of_fncs, *tuple_of_args):
     workers = []
     for fnc, fnc_args in zip_longest(tuple_of_fncs, tuple_of_args):
-        @worker
+        @worker(multiproc=True)
         def _worker(*worker_args):
             return fnc(*worker_args)
 
