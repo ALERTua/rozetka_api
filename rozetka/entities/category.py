@@ -143,10 +143,10 @@ class Category:
             'front-type': 'xl',
             'country': constants.COUNTRY,
             'lang': constants.LANGUAGE,
-            'sell_status': 'available,limited',
             'seller': 'rozetka',
             'sort': 'cheap',
             'state': 'new',
+            'abt': '1',
             'category_id': self.id_,
             'page': page,
         }

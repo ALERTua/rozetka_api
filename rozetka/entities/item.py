@@ -50,6 +50,7 @@ class Item:
             'lang': constants.LANGUAGE,
             'with_groups': 1,
             'with_docket': 1,
+            'with_extra_info': 1,
             'goods_group_href': 1,
             'product_ids': ",".join(product_ids),
         }
@@ -234,20 +235,24 @@ class Item:
         chunk_size = constants.BULK_ITEMS_REQUEST_MAX_LENGTH
         chunked_lists = tools.slice_list(product_ids_str, chunk_size)
         LOG.debug(f"Parsing {len(product_ids)} products divided into {len(chunked_lists)} batches by {chunk_size} each")
-        outputs = Item._parse_batch(*chunked_lists[0], subitems=subitems, parse_subitems=parse_subitems)
-        outputs = tools.fnc_map(Item._parse_batch, *chunked_lists, subitems=subitems, parse_subitems=parse_subitems)
-        outputs = [i for i in outputs if i]
         output = []
-        for list_ in outputs:
-            output.extend(list_)
+        first_barch = Item._parse_batch(*chunked_lists[0], subitems=subitems, parse_subitems=parse_subitems)
+        output.extend(first_barch)
+        batches = tools.fnc_map(Item._parse_batch, *chunked_lists, subitems=subitems,
+                                parse_subitems=parse_subitems)
+        for batch in batches:
+            output.extend(batch)
+        output = list(filter(lambda _: _ is not None, output))
         return output
 
     @cached_property
     def subitem_ids(self):
+        self.parse()
         groups = self._data.get('groups', {})
         if not groups:
             return []
 
+        output = []
         for _, block in groups.items():
             block_iterator = block if isinstance(block, list) else block.values()
             for group in block_iterator:
@@ -263,7 +268,8 @@ class Item:
                         if id_ == self.id_:
                             continue
 
-                        yield id_
+                        output.append(id_)
+        return output
 
     @cached_property
     def subitems(self):
@@ -271,10 +277,16 @@ class Item:
         if not subitem_ids:
             return []
 
-        output = self.__class__.parse_multiple(*subitem_ids, subitems=True)
-        for subitem in output:
-            subitem.parent_item = self
-            subitem.category = self.category
+        subitems_list = self.__class__.parse_multiple(*subitem_ids, subitems=True)
+        output = []
+        for subitems in subitems_list:
+            if not isinstance(subitems, list):
+                subitems = [subitems]
+
+            for subitem in subitems:
+                subitem.parent_item = self
+                subitem.category = self.category
+                output.append(subitem)
         return output
 
     def parse(self, force=False, *args, **kwargs):

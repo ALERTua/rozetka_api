@@ -1,9 +1,10 @@
+from itertools import chain
 from rozetka.entities.category import Category
 from rozetka.entities.item import Item
 from rozetka.entities.point import Point
 from rozetka.entities.supercategory import SuperCategory
 
-ITEM_ID = 330283435
+ITEM_ID = 330283417  # item id with subitems
 CATEGORY_ID = 146633
 SUPERCATEGORY_ID = 4627893
 
@@ -17,7 +18,7 @@ def test_item_getter():
     # assert item.category
     assert item.category_id
     # assert item.comments_ammount
-    assert item.comments_mark
+    assert item.comments_mark is not None  # may be 0
     assert item.config
     assert item.data
     assert item.discount is not None
@@ -50,8 +51,10 @@ def test_item_getter():
 def test_subitems():
     item = Item.get(ITEM_ID)
     item.parse()
-    subsubitems = []
     subitems = item.subitems
+    assert len(subitems) > 0, "There should be some subitems"
+
+    subsubitems = []
     for subitem in subitems:
         subsubitems.extend(subitem.subitems)
     assert len(subsubitems) == 0, "There should be no subsubitems"
@@ -85,3 +88,22 @@ def test_point_hash():
     list_ = [point, point2, point3]
     set_ = set(list_)
     assert len(set_) < len(list_), "Points should be unique"
+
+
+def test_item_in_category():
+    item = Item.get(ITEM_ID)
+    item.parse()
+    category = Category.get(item.category_id)
+    assert item.category_id == category.id_
+
+    category_items = category.items
+    category.parse_items()
+
+    subitems_ids = list(set(list(chain(*[_.subitem_ids for _ in category_items]))))
+    subitems_ids.sort()
+    # assert item.id_ in category.items_ids or item.id_ in subitems_ids
+
+    subitems = Item.parse_multiple(*subitems_ids, subitems=True)
+    items_and_subitems = category_items + subitems
+    items_and_subitems.sort(key=lambda _: _.id_)
+    assert item in items_and_subitems
