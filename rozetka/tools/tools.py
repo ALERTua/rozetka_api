@@ -136,7 +136,8 @@ def get(*args, **kwargs) -> Response:
         LOG.debug(msg)
         raise RateLimitException(msg, sleep_time)
 
-    if (status := response.status_code) in (500, 502, 503, 504, 508, 521, 522, 524, *allowed_codes):
+    # todo: consider 203
+    if (status := response.status_code) in (500, 502, 503, 504, 508, 521, 522, 524, 203, *allowed_codes):
         msg = f"Request status {status} for {args}. Retrying"
         LOG.error(msg)
         raise RateLimitException(msg, sleep_time)
