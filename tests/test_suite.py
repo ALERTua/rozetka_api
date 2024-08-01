@@ -48,6 +48,25 @@ def test_item_getter():
     assert item.title
 
 
+def test_item_in_category():
+    item = Item.get(ITEM_ID)
+    item.parse()
+    category = Category.get(item.category_id)
+    assert item.category_id == category.id_
+
+    category_items = category.items
+    category.parse_items()
+
+    subitems_ids = list(set(list(chain(*[_.subitem_ids for _ in category_items]))))
+    subitems_ids.sort()
+    # assert item.id_ in category.items_ids or item.id_ in subitems_ids
+
+    subitems = Item.parse_multiple(*subitems_ids, subitems=True)
+    items_and_subitems = category_items + subitems
+    items_and_subitems.sort(key=lambda _: _.id_)
+    assert item in items_and_subitems
+
+
 def test_subitems():
     item = Item.get(ITEM_ID)
     item.parse()
@@ -88,22 +107,3 @@ def test_point_hash():
     list_ = [point, point2, point3]
     set_ = set(list_)
     assert len(set_) < len(list_), "Points should be unique"
-
-
-def test_item_in_category():
-    item = Item.get(ITEM_ID)
-    item.parse()
-    category = Category.get(item.category_id)
-    assert item.category_id == category.id_
-
-    category_items = category.items
-    category.parse_items()
-
-    subitems_ids = list(set(list(chain(*[_.subitem_ids for _ in category_items]))))
-    subitems_ids.sort()
-    # assert item.id_ in category.items_ids or item.id_ in subitems_ids
-
-    subitems = Item.parse_multiple(*subitems_ids, subitems=True)
-    items_and_subitems = category_items + subitems
-    items_and_subitems.sort(key=lambda _: _.id_)
-    assert item in items_and_subitems

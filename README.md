@@ -5,19 +5,23 @@
 
 Rozetka.ua Python API
 ---------------------
+[![PyPi Package](https://github.com/ALERTua/rozetka_api/actions/workflows/pypi.yml/badge.svg)](https://github.com/ALERTua/rozetka_api/actions/workflows/pypi.yml)
+[![Docker Image Latest](https://github.com/ALERTua/rozetka_api/actions/workflows/docker-image.yml/badge.svg)](https://github.com/ALERTua/rozetka_api/actions/workflows/docker-image.yml)
 
 Hey-hey, Rozetka employee, I mean no harm. I just wanna know whether your discounts are real. Luvz.
 
 Do not forget to run with `--init` for SIGTERM to correctly forward to child processes.
 
-### Examples
-
-rozetka/examples/example_item.py
-
-rozetka/examples/example_category.py
-
 ### Github
 https://github.com/ALERTua/rozetka_api
 
 ### PyPi
-https://pypi.org/project/rozetka-api/
+https://pypi.org/project/rozetka-api
+
+### Examples
+
+[examples/example_item.py](rozetka/examples/example_item.py)
+
+[examples/example_category.py](rozetka/examples/example_category.py)
+
+[tests/test_suite.py](tests/test_suite.py)
