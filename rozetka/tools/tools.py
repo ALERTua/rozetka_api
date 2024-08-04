@@ -122,11 +122,6 @@ def parse_reviews(reviews_str):
 @sleep_and_retry
 @limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=True)
 def get(*args, **kwargs) -> Response:
-    while ((active_workers := ThreadWorkerManager.list())
-           and ((workers_len := len(active_workers)) > constants.THREADS_MAX)):
-        LOG.info(f"{workers_len} active workers. Waiting...")
-        ThreadWorkerManager.wait(wait_all=True)
-
     allowed_codes = kwargs.pop('allowed_codes', [])
     sleep_time = constants.GET_RETRY_DELAY_SEC
     try:
@@ -169,6 +164,14 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
 def fncs_map(tuple_of_fncs, *tuple_of_args):
     workers = []
     for fnc, fnc_args in zip_longest(tuple_of_fncs, tuple_of_args):
+        active_workers = ThreadWorkerManager.list(active_only=True)
+        all_workers = ThreadWorkerManager.list()
+        LOG.debug(f"active workers: {len(active_workers)}, all_workers: {len(all_workers)}")
+
+        while ((active_workers := ThreadWorkerManager.list())
+               and ((workers_len := len(active_workers)) > constants.THREADS_MAX)):
+            LOG.info(f"{workers_len} active workers. Waiting...")
+            ThreadWorkerManager.wait(wait_all=True)
 
         @worker
         def _worker(*worker_args):
