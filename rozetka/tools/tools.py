@@ -164,13 +164,13 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
 def fncs_map(tuple_of_fncs, *tuple_of_args):
     workers = []
     for fnc, fnc_args in zip_longest(tuple_of_fncs, tuple_of_args):
-        active_workers = ThreadWorkerManager.list(active_only=True)
-        all_workers = ThreadWorkerManager.list()
-        LOG.debug(f"active workers: {len(active_workers)}, all_workers: {len(all_workers)}")
+        active_workers = ThreadWorkerManager.list(active_only=True) or []
+        all_workers = ThreadWorkerManager.list() or []
+        LOG.warning(f"active workers: {len(active_workers)}, all_workers: {len(all_workers)}")
 
         while ((active_workers := ThreadWorkerManager.list())
                and ((workers_len := len(active_workers)) > constants.THREADS_MAX)):
-            LOG.info(f"{workers_len} active workers. Waiting...")
+            LOG.warning(f"{workers_len} active workers. Waiting...")
             ThreadWorkerManager.wait(wait_all=True)
 
         @worker
