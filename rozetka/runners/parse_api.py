@@ -94,7 +94,6 @@ def main():
 
     assert constants.CALLS_MAX, "Please fill the correct CALLS_MAX variable"
     assert constants.CALLS_PERIOD, "Please fill the correct CALLS_PERIOD variable"
-    return _main()
     fnc = _main  # https://github.com/huggingface/knockknock
     if (tg_token := constants.TELEGRAM_TOKEN) and (tg_chat := constants.TELEGRAM_CHAT_ID):
         fnc = telegram_sender(token=tg_token, chat_id=int(tg_chat))(fnc)
