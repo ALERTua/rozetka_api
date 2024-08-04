@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS python-base
+FROM python:3.12-slim-bullseye AS python-base
 LABEL maintainer="ALERT <alexey.rubasheff@gmail.com>"
 
 ENV \
@@ -59,6 +59,7 @@ FROM builder-base AS development
 WORKDIR $BASE_DIR
 
 RUN --mount=type=cache,target=$CACHE_PATH \
+    pip config --user set global.progress_bar off \
     poetry install --no-root --compile
 
 CMD ["bash"]
