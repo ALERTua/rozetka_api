@@ -23,7 +23,7 @@ DEFAULT_HEADERS = {
 DEFAULT_COOKIES = {
     'visitor_city': "1",
 }
-IMPERSONATE = os.getenv('IMPERSONATE', 'chrome120')
+IMPERSONATE = os.getenv('IMPERSONATE', 'chrome124')
 BULK_ITEMS_REQUEST_MAX_LENGTH = 60
 
 THREADS_MAX = int(os.getenv('THREADS_MAX', 100))
