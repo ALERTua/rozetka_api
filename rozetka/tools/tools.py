@@ -198,8 +198,8 @@ def fncs_map(tuple_of_fncs, *tuple_of_args):
         fnc_args = fnc_args or []
         try:
             __worker = _worker(*fnc_args)
-        except Exception as e:
-            if "thread failed to start" in str(e):
+        except RuntimeError as e:
+            if "thread failed to start" in str(e) or "can't start new thread" in str(e):
                 threads_len = len(ThreadWorkerManager.allWorkers.keys())
                 LOG.exception(f"Threads Limit Reached {threads_len}", exc_info=True)
                 LOG.debug(f"Waiting for {len(workers)} workers to finish")
