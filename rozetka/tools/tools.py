@@ -183,7 +183,7 @@ def fncs_map(tuple_of_fncs, *tuple_of_args):
 
 def wait_workers_limit(limit=None):
     limit = limit or constants.THREADS_MAX
-    while (threads := len(ThreadWorkerManager.allWorkers.keys)) > limit:
+    while len(ThreadWorkerManager.allWorkers.keys()) > limit:
         time.sleep(0.1)
 
 
