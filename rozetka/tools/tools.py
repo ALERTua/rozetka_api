@@ -147,6 +147,7 @@ def get(*args, **kwargs) -> Response:
 
 
 def fnc_map(fnc, *tuple_of_args, **kwargs):
+    threads_limit = constants.THREADS_MAX
     outputs = []
     workers = []
 
@@ -155,6 +156,13 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
         return fnc(*worker_args, **worker_kwargs)
 
     for tuple_ in tuple_of_args:
+        if (workers_len := len(workers)) >= threads_limit:
+            LOG.debug(f"Workers: {workers_len}. Waiting")
+            for worker_ in workers:
+                outputs.append(worker_.await_worker())
+                workers.remove(worker_)
+            LOG.debug(f"Done waiting")
+
         try:
             __worker = _worker(*tuple_, **kwargs)
         except Exception as e:
