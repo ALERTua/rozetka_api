@@ -12,12 +12,6 @@ COUNTRY = os.getenv('COUNTRY', 'UA')
 assert COUNTRY, "Please fill the correct COUNTRY variable"
 
 DEFAULT_HEADERS = {
-    # 'Referer': 'https://rozetka.ua/',
-    # 'User-Agent': USER_AGENT,
-    # 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    # 'Accept-Encoding': 'gzip, deflate, br',
-    # 'Accept-Language': 'uk,en-US;q=0.8,en;q=0.5,ru;q=0.3',
-    # 'Connection': 'keep-alive',
 }
 
 DEFAULT_COOKIES = {
@@ -26,8 +20,8 @@ DEFAULT_COOKIES = {
 IMPERSONATE = os.getenv('IMPERSONATE', 'chrome124')
 BULK_ITEMS_REQUEST_MAX_LENGTH = 60
 
-THREADS_MAX = int(os.getenv('THREADS_MAX', 1000))
-CALLS_MAX = int(os.getenv('CALLS_MAX', 10))
+THREADS_MAX = int(os.getenv('THREADS_MAX', 1500))
+CALLS_MAX = int(os.getenv('CALLS_MAX', 100))
 CALLS_PERIOD = int(os.getenv('CALLS_PERIOD', 1))
 
 GET_RETRY_DELAY_SEC = int(os.getenv('GET_RETRY_DELAY_SEC', 10))
