@@ -30,7 +30,7 @@ CALLS_MAX = int(os.getenv('CALLS_MAX', 10))
 CALLS_PERIOD = int(os.getenv('CALLS_PERIOD', 1))
 
 GET_RETRY_DELAY_SEC = int(os.getenv('GET_RETRY_DELAY_SEC', 10))
-GET_TIMEOUT = int(os.getenv('GET_TIMEOUT', 60))
+GET_TIMEOUT = int(os.getenv('GET_TIMEOUT', 30))
 
 INFLUXDB_URL = os.getenv('INFLUXDB_URL')
 INFLUXDB_TOKEN = os.getenv('INFLUXDB_TOKEN')
