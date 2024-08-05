@@ -1,4 +1,5 @@
 import re
+import time
 from itertools import zip_longest
 
 from curl_cffi import requests
@@ -152,6 +153,7 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
 
     workers = []
     for tuple_ in tuple_of_args:
+        wait_workers_limit()
         workers.append(_worker(*tuple_, **kwargs))
 
     outputs = []
@@ -169,6 +171,7 @@ def fncs_map(tuple_of_fncs, *tuple_of_args):
             return fnc(*worker_args)
 
         fnc_args = fnc_args or []
+        wait_workers_limit()
         workers.append(_worker(*fnc_args))
 
     outputs = []
@@ -176,6 +179,12 @@ def fncs_map(tuple_of_fncs, *tuple_of_args):
         worker_.wait()
         outputs.append(worker_.ret)
     return outputs
+
+
+def wait_workers_limit(limit=None):
+    limit = limit or constants.THREADS_MAX
+    while (threads := len(ThreadWorkerManager.allWorkers.keys)) > limit:
+        time.sleep(0.1)
 
 
 def slice_list(list_, chunk_size):
