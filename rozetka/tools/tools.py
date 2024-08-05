@@ -171,7 +171,7 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
             else:
                 raise e
 
-        workers.append(_worker)
+        workers.append(__worker)
 
     for worker_ in workers:
         outputs.append(worker_.await_worker())
