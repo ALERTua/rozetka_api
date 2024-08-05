@@ -165,19 +165,25 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
 
 def fncs_map(tuple_of_fncs, *tuple_of_args):
     workers = []
+    outputs = []
     for fnc, fnc_args in zip_longest(tuple_of_fncs, tuple_of_args):
+        if (workers_len := len(workers)) >= constants.THREADS_MAX:
+            LOG.debug(f"Workers: {workers_len}. Waiting")
+            for worker_ in workers:
+                outputs.append(worker_.await_worker())
+                workers.remove(worker_)
+
         @worker
         def _worker(*worker_args):
             return fnc(*worker_args)
 
         fnc_args = fnc_args or []
-        wait_workers_limit()
-        workers.append(_worker(*fnc_args))
+        __worker = _worker(*fnc_args)
+        workers.append(__worker)
 
-    outputs = []
     for worker_ in workers:
-        worker_.wait()
-        outputs.append(worker_.ret)
+        outputs.append(worker_.await_worker())
+        workers.remove(worker_)
     return outputs
 
 
