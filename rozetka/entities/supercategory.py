@@ -76,7 +76,7 @@ def get_all_item_ids_recursively():
     all_categories = list(set(categories))
     del categories
     all_categories.sort(key=lambda _: _.id_)
-    all_categories = list(filter(lambda _: _ is not None, all_categories))
+    all_categories = [_ for _ in all_categories if _ is not None]
 
     all_categories_len = len(all_categories)
     LOG.green(f"Got total {all_categories_len} categories")
@@ -84,7 +84,7 @@ def get_all_item_ids_recursively():
     LOG.green("Getting ALL items recursively")
     # noinspection PyProtectedMember
     items_ids = tools.fncs_map((_._get_item_ids for _ in all_categories))
-    items_ids = list(filter(lambda _: _ is not None, items_ids))
+    items_ids = [_ for _ in items_ids if _ is not None]
     items_ids = list(set(chain(*items_ids)))
     LOG.green(f"Got {len(items_ids)} item ids from {all_categories_len} categories")
     return items_ids, all_categories_len
