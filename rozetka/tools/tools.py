@@ -147,40 +147,71 @@ def get(*args, **kwargs) -> Response:
 
 
 def fnc_map(fnc, *tuple_of_args, **kwargs):
+    outputs = []
+    workers = []
+
     @worker
     def _worker(*worker_args, **worker_kwargs):
         return fnc(*worker_args, **worker_kwargs)
 
-    workers = []
     for tuple_ in tuple_of_args:
-        wait_workers_limit()
-        workers.append(_worker(*tuple_, **kwargs))
+        try:
+            __worker = _worker(*tuple_, **kwargs)
+        except Exception as e:
+            if "thread failed to start" in str(e):
+                threads_len = len(ThreadWorkerManager.allWorkers.keys())
+                LOG.exception(f"Threads Limit Reached {threads_len}", exc_info=True)
+                LOG.debug(f"Waiting for {len(workers)} workers to finish")
+                for worker_ in workers:
+                    outputs.append(worker_.await_worker())
+                    workers.remove(worker_)
+                LOG.debug(f"Done waiting")
 
-    outputs = []
+                __worker = _worker(*tuple_, **kwargs)
+            else:
+                raise e
+
+        workers.append(_worker)
+
     for worker_ in workers:
-        worker_.wait()
-        outputs.append(worker_.ret)
+        outputs.append(worker_.await_worker())
+        workers.remove(worker_)
     return outputs
 
 
 def fncs_map(tuple_of_fncs, *tuple_of_args):
     workers = []
     outputs = []
-    threads_limit = constants.THREADS_MAX
+    # threads_limit = constants.THREADS_MAX
     for fnc, fnc_args in zip_longest(tuple_of_fncs, tuple_of_args):
-        if (workers_len := len(workers)) >= threads_limit:
-            LOG.debug(f"Workers: {workers_len}. Waiting")
-            for worker_ in workers:
-                outputs.append(worker_.await_worker())
-                workers.remove(worker_)
-            LOG.debug(f"Done waiting")
+        # if (workers_len := len(workers)) >= threads_limit:
+        #     LOG.debug(f"Workers: {workers_len}. Waiting")
+        #     for worker_ in workers:
+        #         outputs.append(worker_.await_worker())
+        #         workers.remove(worker_)
+        #     LOG.debug(f"Done waiting")
 
         @worker
         def _worker(*worker_args):
             return fnc(*worker_args)
 
         fnc_args = fnc_args or []
-        __worker = _worker(*fnc_args)
+        try:
+            __worker = _worker(*fnc_args)
+        except Exception as e:
+            if "thread failed to start" in str(e):
+                threads_len = len(ThreadWorkerManager.allWorkers.keys())
+                LOG.exception(f"Threads Limit Reached {threads_len}", exc_info=True)
+                LOG.debug(f"Waiting for {len(workers)} workers to finish")
+                for worker_ in workers:
+                    outputs.append(worker_.await_worker())
+                    workers.remove(worker_)
+                LOG.debug(f"Done waiting")
+
+                __worker = _worker(*fnc_args)
+            else:
+                raise e
+
         workers.append(__worker)
 
     for worker_ in workers:
