@@ -1,28 +1,40 @@
 @echo off
 setlocal enabledelayedexpansion enableextensions
-pushd %~dp0..
+
 poetry check || goto :end
 if not exist poetry.lock poetry lock || goto :end
 
-set DOCKER_BUILDKIT=1
-set DOCKER_REGISTRY=registry.alertua.duckdns.org
+if not defined DOCKER_BUILDKIT set DOCKER_BUILDKIT=1
+if not defined DOCKER_REGISTRY set DOCKER_REGISTRY=registry.alertua.duckdns.org
 echo DOCKER_REGISTRY: %DOCKER_REGISTRY%
 
-for %%I in ("%~dp0..") do set "IMAGE_NAME=%%~nxI"
+set prevdir=%CD%
+echo prevdir: %prevdir%
+
+cd /d %~dp0
+
+for %%I in ("%CD%") do set "curdir=%%~nxI"
+set "curdir_prefix=!curdir:~0,6!"
+if /I "%curdir_prefix%"=="script" cd ..
+for %%I in ("%CD%") do set "curdir=%%~nxI"
+echo curdir: %curdir%
+
+if not defined IMAGE_NAME set IMAGE_NAME=%curdir%
 echo IMAGE_NAME: %IMAGE_NAME%
 
-set IMAGE_TAG=latest
+if not defined IMAGE_TAG set IMAGE_TAG=latest
 echo IMAGE_TAG: %IMAGE_TAG%
 
-set BUILD_TAG=%DOCKER_REGISTRY%/%IMAGE_NAME%:%IMAGE_TAG%
+if not defined BUILD_TAG set BUILD_TAG=%DOCKER_REGISTRY%/%IMAGE_NAME%:%IMAGE_TAG%
 echo BUILD_TAG: %BUILD_TAG%
 
-set "BUILD_PATH=%CD%"
+if not defined BUILD_PATH set "BUILD_PATH=%CD%"
 echo BUILD_PATH: %BUILD_PATH%
+pushd %BUILD_PATH%
 
-set DOCKER_EXE=docker
+if not defined DOCKER_EXE set DOCKER_EXE=docker
 rem set DOCKER_OPTS=--insecure-registry=%DOCKER_REGISTRY%
-set DOCKER_OPTS=--max-concurrent-uploads=10 --max-concurrent-downloads=10
+if not defined DOCKER_OPTS set DOCKER_OPTS=--max-concurrent-uploads=10 --max-concurrent-downloads=10
 
 "%DOCKER_EXE%" --version
 
@@ -30,14 +42,12 @@ echo DOCKER_REMOTE: %DOCKER_REMOTE%
 if defined DOCKER_HOST echo DOCKER_HOST: %DOCKER_HOST%
 
 @REM choice /C YN /m "Proceed?"
-@REM if ["%errorlevel%"] NEQ ["1"] exit /b
-timeout /t 5
+@REM if ["%errorlevel%"] NEQ ["1"] goto :end
+timeout /t 7
 
 if not defined DOCKER_REMOTE (
-    set DOCKER_SERVICE=com.docker.service
-    where %DOCKER_EXE% >nul || (
-        set "DOCKER_EXE=%ProgramFiles%\Docker\Docker\resources\bin\docker.exe"
-    )
+    if not defined DOCKER_SERVICE set DOCKER_SERVICE=com.docker.service
+    where %DOCKER_EXE% >nul || set "DOCKER_EXE=%ProgramFiles%\Docker\Docker\resources\bin\docker.exe"
 
     sc query %DOCKER_SERVICE% | findstr /IC:"running" >nul || (
         echo starting Docker service %DOCKER_SERVICE%
@@ -64,6 +74,8 @@ if not defined DOCKER_REMOTE (
 
 @REM net stop %DOCKER_SERVICE% || goto :end
 
+goto :end
+
 :end
-popd
+cd /d %prevdir%
 exit /b
