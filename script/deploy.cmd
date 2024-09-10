@@ -1,7 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion enableextensions
-poetry check || exit /b
-if not exist poetry.lock poetry lock || exit /b
+pushd %~dp0..
+poetry check || goto :end
+if not exist poetry.lock poetry lock || goto :end
 
 set DOCKER_BUILDKIT=1
 set DOCKER_REGISTRY=registry.alertua.duckdns.org
@@ -16,7 +17,7 @@ echo IMAGE_TAG: %IMAGE_TAG%
 set BUILD_TAG=%DOCKER_REGISTRY%/%IMAGE_NAME%:%IMAGE_TAG%
 echo BUILD_TAG: %BUILD_TAG%
 
-set "BUILD_PATH=%~dp0"
+set "BUILD_PATH=%CD%"
 echo BUILD_PATH: %BUILD_PATH%
 
 set DOCKER_EXE=docker
@@ -38,12 +39,11 @@ if not defined DOCKER_REMOTE (
         set "DOCKER_EXE=%ProgramFiles%\Docker\Docker\resources\bin\docker.exe"
     )
 
-    pushd %~dp0
     sc query %DOCKER_SERVICE% | findstr /IC:"running" >nul || (
         echo starting Docker service %DOCKER_SERVICE%
         sudo net start %DOCKER_SERVICE% || (
             echo "Error starting docker service %DOCKER_SERVICE%
-            exit /b
+            goto :end
         )
     )
 
@@ -59,7 +59,11 @@ if not defined DOCKER_REMOTE (
 )
 
 "%DOCKER_EXE%" --version
-"%DOCKER_EXE%" build -t %BUILD_TAG% %BUILD_PATH% %* || exit /b
-"%DOCKER_EXE%" push %DOCKER_REGISTRY%/%IMAGE_NAME% || exit /b
+"%DOCKER_EXE%" build -t %BUILD_TAG% %BUILD_PATH% %* || goto :end
+"%DOCKER_EXE%" push %DOCKER_REGISTRY%/%IMAGE_NAME% || goto :end
 
-@REM net stop %DOCKER_SERVICE% || exit /b
+@REM net stop %DOCKER_SERVICE% || goto :end
+
+:end
+popd
+exit /b
