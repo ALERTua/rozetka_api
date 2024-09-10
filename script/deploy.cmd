@@ -8,7 +8,7 @@ set DOCKER_BUILDKIT=1
 set DOCKER_REGISTRY=registry.alertua.duckdns.org
 echo DOCKER_REGISTRY: %DOCKER_REGISTRY%
 
-for %%I in ("%~dp0.") do set "IMAGE_NAME=%%~nxI"
+for %%I in ("%~dp0..") do set "IMAGE_NAME=%%~nxI"
 echo IMAGE_NAME: %IMAGE_NAME%
 
 set IMAGE_TAG=latest
