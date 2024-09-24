@@ -32,14 +32,15 @@ aiohttp-retry = "^2.8.3"
 global-logger = "^0.4.2"
 progress = "^1.6"
 ratelimit = "^2.2.1"
-python-worker = "^2.2.2"
+python-worker = "^2.2.4"
 knockknock = "^0.1.8.1"
-influxdb-client = {version = "^1.44.0", extras = ["async"]}
-curl-cffi = {version = "^0.7.1", allow-prereleases = true}
+influxdb-client = {version = "^1.46.0", extras = ["async"]}
+# curl-cffi = {version = "^0.7.2", allow-prereleases = true}
+curl-cffi = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 poetry = "^1.8.3"
-pytest = "^8.3.2"
+pytest = "^8.3.3"
 
 [tool.poetry-dynamic-versioning]
 enable = true
