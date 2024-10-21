@@ -5,6 +5,7 @@ poetry check || goto :end
 if not exist poetry.lock poetry lock || goto :end
 
 if not defined DOCKER_BUILDKIT set DOCKER_BUILDKIT=1
+if not defined DOCKERFILE set DOCKERFILE=Dockerfile
 if not defined DOCKER_REGISTRY set DOCKER_REGISTRY=registry.alertua.duckdns.org
 echo DOCKER_REGISTRY: %DOCKER_REGISTRY%
 
@@ -69,7 +70,7 @@ if not defined DOCKER_REMOTE (
 )
 
 "%DOCKER_EXE%" --version
-"%DOCKER_EXE%" build -t %BUILD_TAG% %BUILD_PATH% %* || goto :end
+"%DOCKER_EXE%" build -t %BUILD_TAG% %BUILD_PATH% --target production %* || goto :end
 "%DOCKER_EXE%" push %DOCKER_REGISTRY%/%IMAGE_NAME% || goto :end
 
 @REM net stop %DOCKER_SERVICE% || goto :end
