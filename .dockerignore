@@ -19,7 +19,7 @@ Modelfile
 
 # Docker
 docker-compose.yml
-Dockerfile
+Dockerfile*
 .docker
 .dockerignore
 
