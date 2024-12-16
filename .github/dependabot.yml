@@ -9,3 +9,8 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "ruff"
+      - dependency-name: "pytest"
+      - dependency-name: "poetry"
+      - dependency-name: "pre-commit"
