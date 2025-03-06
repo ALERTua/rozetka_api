@@ -1,6 +1,6 @@
 [project]
-name = "rozetka"
-version = "1.6.7"
+name = "rozetka-api"
+version = "1.6.9"
 description = "Rozetka Python API"
 authors = [
     { name = "Alexey ALERT Rubasheff", email = "alexey.rubasheff@gmail.com" }
@@ -23,11 +23,13 @@ dependencies = [
     "influxdb-client[async]>=1.46.0",
     "curl-cffi>=0.10.0b1",
 ]
-packages = ["rozetka"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rozetka"]
 
 [project.urls]
 homepage = "https://github.com/ALERTua/rozetka_api"
