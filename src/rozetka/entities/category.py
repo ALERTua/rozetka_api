@@ -144,10 +144,10 @@ class Category:
             output.parent_category = output._parent_category or parent_category
             output.data = output._data or data
         else:
-            from rozetka.entities.supercategory import SuperCategory
+            from .supercategory import SuperCategory
 
             class_ = Category
-            from rozetka.entities.supercategory import get_super_category_ids
+            from .supercategory import get_super_category_ids
 
             if id_ in get_super_category_ids():
                 class_ = SuperCategory
@@ -225,7 +225,7 @@ class Category:
             if not item_ids:
                 return []
 
-            from rozetka.entities.item import Item
+            from .item import Item
 
             items = [Item.get(i) for i in item_ids]
             # items.extend([list(i.__iter__()) for i in items])

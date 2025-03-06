@@ -349,7 +349,7 @@ class SubItem(Item):
 if __name__ == "__main__":
     item_ = Item.get(331350610)
     item_.parse()
-    from rozetka.entities.category import Category
+    from .category import Category
 
     category = Category.get(2394287)
     category.parse_items()
