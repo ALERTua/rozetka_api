@@ -1,8 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion enableextensions
 
-poetry check || goto :end
-if not exist poetry.lock poetry lock || goto :end
+if exist .python-version (
+    uv sync --locked || goto :end
+    if not exist uv.lock uv lock || goto :end
+) else if exist pyproject.toml (
+    poetry check || goto :end
+    if not exist poetry.lock poetry lock || goto :end
+)
 
 if not defined DOCKER_BUILDKIT set DOCKER_BUILDKIT=1
 if not defined DOCKERFILE set DOCKERFILE=Dockerfile
