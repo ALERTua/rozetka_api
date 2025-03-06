@@ -11,9 +11,6 @@ ENV TELEGRAM_CHAT_ID=""
 ENV IMPERSONATE="chrome131"
 ENV TZ="Europe/London"
 
-EXPOSE $PORT
-VOLUME ["/data"]
-
 ENV \
     # uv
     UV_COMPILE_BYTECODE=1 \
