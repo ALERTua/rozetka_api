@@ -1,9 +1,10 @@
 # https://github.com/marketplace/actions/publish-python-poetry-package
 name: PyPi Package
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_dispatch:
+#  push:
+#    tags:
+#      - "v*.*.*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
