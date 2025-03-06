@@ -5,7 +5,7 @@
 
 Rozetka.ua Python API
 ---------------------
-[![PyPi Package](https://github.com/ALERTua/rozetka_api/actions/workflows/pypi.yml/badge.svg)](https://github.com/ALERTua/rozetka_api/actions/workflows/pypi.yml)
+
 [![Docker Image Latest](https://github.com/ALERTua/rozetka_api/actions/workflows/docker-image.yml/badge.svg)](https://github.com/ALERTua/rozetka_api/actions/workflows/docker-image.yml)
 
 Hey-hey, Rozetka employee, I mean no harm. I just wanna know whether your discounts are real. Luvz.
