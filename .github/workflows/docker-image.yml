@@ -29,15 +29,15 @@ jobs:
       packages: write
 
     steps:
-      - name: core.symlinks
-        run: |
-          git config --global core.symlinks true
+#      - name: core.symlinks
+#        run: |
+#          git config --global core.symlinks true
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          token: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          submodules: recursive  # https://github.com/actions/checkout/issues/2080
+#          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Docker metadata
         id: meta
