@@ -1,9 +1,9 @@
-from rozetka.entities.item import Item
+from .item import Item
 from typing import List
 
 from global_logger import Log
 
-from rozetka.tools import tools, constants
+from ..tools import tools, constants
 
 LOG = Log.get_logger()
 

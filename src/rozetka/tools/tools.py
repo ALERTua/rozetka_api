@@ -9,7 +9,7 @@ from requests import Response
 # noinspection PyPackageRequirements
 from worker import worker, ThreadWorkerManager
 
-from rozetka.tools import constants
+from . import constants
 
 LOG = Log.get_logger()
 

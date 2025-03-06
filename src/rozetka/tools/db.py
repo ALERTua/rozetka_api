@@ -10,8 +10,8 @@ from influxdb_client import InfluxDBClient, Bucket, BucketRetentionRules
 from influxdb_client.client.flux_table import FluxRecord
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 
-from rozetka.entities.point import Point
-from rozetka.tools import constants
+from ..entities.point import Point
+from ..tools import constants
 
 log = Log.get_logger()
 

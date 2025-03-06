@@ -3,7 +3,7 @@ from typing import Dict, List, Collection
 
 from global_logger import Log
 
-from rozetka.tools import tools, constants
+from ..tools import tools, constants
 
 LOG = Log.get_logger()
 

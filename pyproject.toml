@@ -1,55 +1,45 @@
-[tool.poetry]
-name = "rozetka-api"
+[project]
+name = "rozetka"
 version = "1.6.6"
 description = "Rozetka Python API"
-authors = ["Alexey ALERT Rubasheff <alexey.rubasheff@gmail.com>"]
+authors = [
+    { name = "Alexey ALERT Rubasheff", email = "alexey.rubasheff@gmail.com" }
+]
 readme = "README.md"
-packages = [{include = "rozetka"}]
+requires-python = "==3.12.*"
+keywords = ["rozetka"]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+    "pendulum>=3.0.0",
+    "requests>=2.32.3",
+    "aiohttp-retry>=2.8.3",
+    "global-logger>=0.4.2",
+    "progress>=1.6",
+    "ratelimit>=2.2.1",
+    "python-worker>=2.2.4",
+    "knockknock>=0.1.8.1",
+    "influxdb-client[async]>=1.46.0",
+    "curl-cffi>=0.10.0b1",
+]
+packages = ["rozetka"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.urls]
 homepage = "https://github.com/ALERTua/rozetka_api"
 repository = "https://github.com/ALERTua/rozetka_api"
 documentation = "https://github.com/ALERTua/rozetka_api"
-keywords = ["rozetka"]
-classifiers = [  # https://pypi.org/pypi?%3Aaction=list_classifiers
-    "Topic :: Software Development :: Libraries :: Python Modules"
-]
-include = ["HISTORY.rst"]
-
-[tool.poetry.urls]
 "Bug Tracker" = "https://github.com/ALERTua/rozetka_api/issues"
 "Rozetka API" = "https://github.com/ALERTua/rozetka_api"
 "Rozetka Keepa" = "https://github.com/ALERTua/rozetka_keepa"
 "Rozetka FastAPI" = "https://github.com/ALERTua/rozetka_fastapi"
 "Rozetka UserScript" = "https://github.com/ALERTua/rozetka_userscript"
 
-[tool.poetry.build]
-generate-setup-file = true
-
-[tool.poetry.dependencies]
-python = "^3.12"
-pendulum = "^3.0.0"
-requests = "^2.32.3"
-aiohttp-retry = "^2.8.3"
-global-logger = "^0.4.2"
-progress = "^1.6"
-ratelimit = "^2.2.1"
-python-worker = "^2.2.4"
-knockknock = "^0.1.8.1"
-influxdb-client = {version = "^1.46.0", extras = ["async"]}
-curl-cffi = {version = "^0.7.3", allow-prereleases = true}
-
-[tool.poetry.group.dev.dependencies]
-poetry = "^1.8.4"
-pytest = "^8.3.3"
-
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "semver"
-
-[build-system]
-requires = ["poetry-core", "poetry-dynamic-versioning"]
-build-backend = "poetry_dynamic_versioning.backend"
-
-[virtualenvs]
-create = true
-in-project = true
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]

@@ -7,12 +7,12 @@ from global_logger import Log
 from knockknock import telegram_sender, discord_sender, slack_sender, teams_sender
 from progress.bar import Bar
 
-from rozetka.entities.item import Item, SubItem
-from rozetka.entities.supercategory import SuperCategory
-from rozetka.entities.category import Category
-from rozetka.entities.point import Point
-from rozetka.entities.supercategory import get_all_items_recursively, get_all_item_ids_recursively
-from rozetka.tools import db, constants, tools
+from ..entities.item import Item, SubItem
+from ..entities.supercategory import SuperCategory
+from ..entities.category import Category
+from ..entities.point import Point
+from ..entities.supercategory import get_all_items_recursively, get_all_item_ids_recursively
+from ..tools import db, constants, tools
 
 LOG = Log.get_logger()
 
