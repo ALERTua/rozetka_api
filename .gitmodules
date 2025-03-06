@@ -1,3 +1,4 @@
 [submodule "script"]
 	path = script
 	url = https://github.com/ALERTua/script.git
+	branch = main
