@@ -97,13 +97,27 @@ def test_cache_supercategory():
     id_ = SUPERCATEGORY_ID
     supercategory1 = SuperCategory.get(id_)
     supercategory2 = SuperCategory.get(id_)
-    assert supercategory1 is supercategory2, "SuperCategories of the same id should be the same"
+    assert supercategory1 is supercategory2, (
+        "SuperCategories of the same id should be the same"
+    )
 
 
 def test_point_hash():
-    point = Point('measurement_name').tag('tag_name', 'tag_value').field('field_name', 'field_value')
-    point2 = Point('measurement_name').tag('tag_name', 'tag_value').field('field_name', 'field_value')
-    point3 = Point('measurement_name').tag('tag_name', 'tag_value1').field('field_name', 'field_value')
+    point = (
+        Point("measurement_name")
+        .tag("tag_name", "tag_value")
+        .field("field_name", "field_value")
+    )
+    point2 = (
+        Point("measurement_name")
+        .tag("tag_name", "tag_value")
+        .field("field_name", "field_value")
+    )
+    point3 = (
+        Point("measurement_name")
+        .tag("tag_name", "tag_value1")
+        .field("field_name", "field_value")
+    )
     list_ = [point, point2, point3]
     set_ = set(list_)
     assert len(set_) < len(list_), "Points should be unique"

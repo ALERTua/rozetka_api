@@ -18,51 +18,62 @@ def get_fat_menu_categories():
         return SuperCategory._fat_menu_categories
 
     params = {
-        'front-type': 'xl',
-        'country': 'UA',
-        'lang': 'ua',
+        "front-type": "xl",
+        "country": "UA",
+        "lang": "ua",
     }
     output = []
-    response = tools.get('https://common-api.rozetka.com.ua/v2/fat-menu/full', params=params,
-                         headers=constants.DEFAULT_HEADERS)
+    response = tools.get(
+        "https://common-api.rozetka.com.ua/v2/fat-menu/full",
+        params=params,
+        headers=constants.DEFAULT_HEADERS,
+    )
     if response is None:
-        LOG.error(f"get_fat_menu_categories: response is None")
+        LOG.error("get_fat_menu_categories: response is None")
         return output
 
     if not response.ok:
-        LOG.error(f"get_fat_menu_categories: response not ok: {response.status_code} {response.reason}")
+        LOG.error(
+            f"get_fat_menu_categories: response not ok: {response.status_code} {response.reason}"
+        )
         return output
 
-    data: dict = response.json().get('data', dict())
+    data: dict = response.json().get("data", dict())
     for div in data.values():
-        children = div.get('children', dict())
+        children = div.get("children", dict())
         # noinspection DuplicatedCode
         if not children:
-            category_id = div.get('category_id')
+            category_id = div.get("category_id")
             if category_id is not None:
-                category_title = div.get('title')
-                category_url = div.get('manual_url')
-                category = Category.get(id_=category_id, title=category_title, url=category_url)
+                category_title = div.get("title")
+                category_url = div.get("manual_url")
+                category = Category.get(
+                    id_=category_id, title=category_title, url=category_url
+                )
                 output.append(category)
 
         for subchild in children.values():
             for subsubchild in subchild:
-                subchildren = subsubchild.get('children', list())
+                subchildren = subsubchild.get("children", list())
                 # noinspection DuplicatedCode
                 if not subchildren:
-                    category_id = subsubchild.get('category_id')
+                    category_id = subsubchild.get("category_id")
                     if category_id is not None:
-                        category_title = subsubchild.get('title')
-                        category_url = subsubchild.get('manual_url')
-                        category = Category.get(id_=category_id, title=category_title, url=category_url)
+                        category_title = subsubchild.get("title")
+                        category_url = subsubchild.get("manual_url")
+                        category = Category.get(
+                            id_=category_id, title=category_title, url=category_url
+                        )
                         output.append(category)
 
                 for subsubsubchild in subchildren:
-                    category_id = subsubsubchild.get('category_id')
+                    category_id = subsubsubchild.get("category_id")
                     if category_id is not None:
-                        category_title = subsubsubchild.get('title')
-                        category_url = subsubsubchild.get('manual_url')
-                        category = Category.get(id_=category_id, title=category_title, url=category_url)
+                        category_title = subsubsubchild.get("title")
+                        category_url = subsubsubchild.get("manual_url")
+                        category = Category.get(
+                            id_=category_id, title=category_title, url=category_url
+                        )
                         output.append(category)
 
     SuperCategory._fat_menu_categories = output = list(set(output))
@@ -90,9 +101,11 @@ def get_all_item_ids_recursively():
     return items_ids, all_categories_len
 
 
-def get_all_items_recursively(loop=False, items_ids=None, all_categories_len=None) -> List[Item]:
+def get_all_items_recursively(
+    loop=False, items_ids=None, all_categories_len=None
+) -> List[Item]:
     if loop:
-        return list()
+        return []
 
     if items_ids is None:
         items_ids, all_categories_len = get_all_item_ids_recursively()
@@ -102,12 +115,16 @@ def get_all_items_recursively(loop=False, items_ids=None, all_categories_len=Non
 
     LOG.green("Getting subitem ids")
     subitems_ids = list(set(list(chain(*[_.subitem_ids for _ in items]))))
-    LOG.debug(f"Got {len(subitems_ids)} subitem ids from {all_categories_len} categories")
+    LOG.debug(
+        f"Got {len(subitems_ids)} subitem ids from {all_categories_len} categories"
+    )
     subitems = Item.parse_multiple(*subitems_ids, subitems=True)
     LOG.debug(f"Got {len(subitems)} subitems from {all_categories_len} categories")
 
     # noinspection PyProtectedMember
-    all_items = items + subitems + list(Item._cache.values()) + list(SubItem._cache.values())
+    all_items = (
+        items + subitems + list(Item._cache.values()) + list(SubItem._cache.values())
+    )
 
     if not loop:
         for _ in all_items:
@@ -133,7 +150,7 @@ def get_super_categories():
 
     :rtype: List[SuperCategory]
     """
-    LOG.debug(f"Getting super categories")
+    LOG.debug("Getting super categories")
     output = []
     for super_category_id in get_super_category_ids():
         super_category = SuperCategory.get(id_=super_category_id)
@@ -148,16 +165,20 @@ def get_super_categories():
 def get_super_category_ids():
     # noinspection PyProtectedMember
     if SuperCategory._super_category_ids is None:
-        LOG.debug(f"Getting super category ids")
-        url = 'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList'
-        response: Response = tools.get(url, headers=constants.DEFAULT_HEADERS, cookies=constants.DEFAULT_COOKIES)
+        LOG.debug("Getting super category ids")
+        url = "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList"
+        response: Response = tools.get(
+            url, headers=constants.DEFAULT_HEADERS, cookies=constants.DEFAULT_COOKIES
+        )
         if response is None or not response.ok:
-            msg = f'Error requesting "{url}": {response.status_code if response is not None else None} ' \
-                  f'{response.reason if response is not None else None}'
+            msg = (
+                f'Error requesting "{url}": {response.status_code if response is not None else None} '
+                f"{response.reason if response is not None else None}"
+            )
             LOG.error(msg)
             raise Exception(msg)
 
-        SuperCategory._super_category_ids = output = response.json().get('data', list())
+        SuperCategory._super_category_ids = output = response.json().get("data", list())
         # noinspection PyProtectedMember
         SuperCategory._super_category_ids.sort()
         LOG.debug(f"Got {len(output)} super category ids")
@@ -195,24 +216,38 @@ class SuperCategory(Category):
     _super_categories = None  # type: List[SuperCategory]
     _fat_menu_categories = None  # type: List[Category]
 
-    def __init__(self, id_, title=None, url=None, parent_category=None, parent_category_id=None, direct=True):
-        super().__init__(id_=id_, title=title, url=url, parent_category=parent_category,
-                         parent_category_id=parent_category_id, direct=direct)
+    def __init__(
+        self,
+        id_,
+        title=None,
+        url=None,
+        parent_category=None,
+        parent_category_id=None,
+        direct=True,
+    ):
+        super().__init__(
+            id_=id_,
+            title=title,
+            url=url,
+            parent_category=parent_category,
+            parent_category_id=parent_category_id,
+            direct=direct,
+        )
 
     @property
     def data(self):
         if self._data is None:
             params = {
-                'category_id': self.id_,
-                'lang': constants.LANGUAGE,
-                'country': constants.COUNTRY,
+                "category_id": self.id_,
+                "lang": constants.LANGUAGE,
+                "country": constants.COUNTRY,
             }
-            url = 'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get'
+            url = "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get"
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
             if response is None:
                 return
 
-            self._data = response.json().get('data', dict()) or dict()
+            self._data = response.json().get("data", {}) or {}
         return self._data
 
     @data.setter
@@ -223,16 +258,18 @@ class SuperCategory(Category):
     def subcategories_data(self):
         if self._subcategories_data is None:
             if not self.data:
-                return list()
+                return []
 
-            blocks: list = self.data.get('blocks', list())
-            category_trees = list(filter(lambda i: i.get('type') == 'seo_category_tree', blocks))
+            blocks: list = self.data.get("blocks", [])
+            category_trees = list(
+                filter(lambda i: i.get("type") == "seo_category_tree", blocks)
+            )
             if not category_trees:
                 return {}
 
             category_tree: dict = category_trees[0]
-            content: dict = category_tree.get('content', dict())
-            output = content.get('items', list())
+            content: dict = category_tree.get("content", {})
+            output = content.get("items", list())
             output = [_ for _ in output if isinstance(_, dict)]
             self._subcategories_data = output
             LOG.debug(f"Got {len(output)} subcategories data for {self}")
@@ -244,10 +281,10 @@ class SuperCategory(Category):
 
     @property
     def subcategories(self):
-        return self._get_subcategories('root_id')
+        return self._get_subcategories("root_id")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     LOG.verbose = False
     # get_fat_menu_categories()
     # all_items_ = get_all_items_recursively()

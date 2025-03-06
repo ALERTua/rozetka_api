@@ -6,6 +6,7 @@ from curl_cffi import requests
 from global_logger import Log
 from ratelimit import limits, sleep_and_retry, RateLimitException
 from requests import Response
+
 # noinspection PyPackageRequirements
 from worker import worker, ThreadWorkerManager
 
@@ -22,11 +23,11 @@ def title_clean(title):
     Ноутбуки
     """
     if not title:
-        return ''
+        return ""
 
     tails = [
-        ' - ROZETKA',
-        ' – в інтернет-магазині ROZETKA',
+        " - ROZETKA",
+        " – в інтернет-магазині ROZETKA",
     ]
     output = title
     for tail in tails:
@@ -123,10 +124,15 @@ def parse_reviews(reviews_str):
 @sleep_and_retry
 @limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=True)
 def get(*args, **kwargs) -> Response:
-    allowed_codes = kwargs.pop('allowed_codes', [])
+    allowed_codes = kwargs.pop("allowed_codes", [])
     sleep_time = constants.GET_RETRY_DELAY_SEC
     try:
-        response = requests.get(*args, timeout=constants.GET_TIMEOUT, impersonate=constants.IMPERSONATE, **kwargs)
+        response = requests.get(
+            *args,
+            timeout=constants.GET_TIMEOUT,
+            impersonate=constants.IMPERSONATE,
+            **kwargs,
+        )
     except Exception as e:
         msg = f"Exception while Requesting {args}: {type(e)} {e}. Retrying"
         LOG.error(msg)
@@ -138,7 +144,18 @@ def get(*args, **kwargs) -> Response:
         raise RateLimitException(msg, sleep_time)
 
     # todo: consider 203
-    if (status := response.status_code) in (500, 502, 503, 504, 508, 521, 522, 524, 203, *allowed_codes):
+    if (status := response.status_code) in (
+        500,
+        502,
+        503,
+        504,
+        508,
+        521,
+        522,
+        524,
+        203,
+        *allowed_codes,
+    ):
         msg = f"Request status {status} for {args}. Retrying"
         LOG.error(msg)
         raise RateLimitException(msg, sleep_time)
@@ -161,7 +178,7 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
             for worker_ in workers:
                 outputs.append(worker_.await_worker())
                 workers.remove(worker_)
-            LOG.debug(f"Done waiting")
+            LOG.debug("Done waiting")
 
         try:
             __worker = _worker(*tuple_, **kwargs)
@@ -173,7 +190,7 @@ def fnc_map(fnc, *tuple_of_args, **kwargs):
                 for worker_ in workers:
                     outputs.append(worker_.await_worker())
                     workers.remove(worker_)
-                LOG.debug(f"Done waiting")
+                LOG.debug("Done waiting")
 
                 __worker = _worker(*tuple_, **kwargs)
             else:
@@ -197,7 +214,7 @@ def fncs_map(tuple_of_fncs, *tuple_of_args):
             for worker_ in workers:
                 outputs.append(worker_.await_worker())
                 workers.remove(worker_)
-            LOG.debug(f"Done waiting")
+            LOG.debug("Done waiting")
 
         @worker
         def _worker(*worker_args):
@@ -214,7 +231,7 @@ def fncs_map(tuple_of_fncs, *tuple_of_args):
                 for worker_ in workers:
                     outputs.append(worker_.await_worker())
                     workers.remove(worker_)
-                LOG.debug(f"Done waiting")
+                LOG.debug("Done waiting")
 
                 __worker = _worker(*fnc_args)
             else:
@@ -235,4 +252,4 @@ def wait_workers_limit(limit=None):
 
 
 def slice_list(list_, chunk_size):
-    return [list_[i:i + chunk_size] for i in range(0, len(list_), chunk_size)]
+    return [list_[i : i + chunk_size] for i in range(0, len(list_), chunk_size)]

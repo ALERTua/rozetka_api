@@ -1,5 +1,6 @@
+from __future__ import annotations
 from functools import cached_property
-from typing import Dict, List, Collection
+from typing import Collection
 
 from global_logger import Log
 
@@ -9,27 +10,29 @@ LOG = Log.get_logger()
 
 
 class Item:
-    _cache = dict()  # type: Dict[int, Item]
-    _data: Dict = dict()
+    _cache: dict[int, Item] = {}
+    _data: dict = {}
 
     def __init__(self, id_, direct=True, **kwargs):
-        assert direct is False, f"You cannot use {self.__class__.__name__} directly. Please use get classmethod."
+        assert direct is False, (
+            f"You cannot use {self.__class__.__name__} directly. Please use get classmethod."
+        )
         self.id_ = id_
         assert isinstance(self.id_, int), f"{self.__class__.__name__} id must be an int"
         self.category = None
         self.data = kwargs
 
-        if (stars := self.__dict__.get('stars', None)) is not None:
-            if '%' in str(stars):
-                self.stars = int(stars.rstrip('%')) / 100
+        if (stars := self.__dict__.get("stars", None)) is not None:
+            if "%" in str(stars):
+                self.stars = int(stars.rstrip("%")) / 100
 
-        if (comments_mark := self.__dict__.get('comments_mark', None)) is not None:
+        if (comments_mark := self.__dict__.get("comments_mark", None)) is not None:
             self.comments_mark = float(comments_mark)
 
         self._parsed = False
 
     def __str__(self):
-        if title := self.__dict__.get('title'):
+        if title := self.__dict__.get("title"):
             return f"({self.id_}) {title}"
 
         return f"{self.id_}"
@@ -44,30 +47,32 @@ class Item:
 
     @staticmethod
     def _parse_batch(*product_ids, subitems=False, parse_subitems=True):
-        url = 'https://xl-catalog-api.rozetka.com.ua/v4/goods/getDetails'
+        url = "https://xl-catalog-api.rozetka.com.ua/v4/goods/getDetails"
         params = {
-            'country': constants.COUNTRY,
-            'lang': constants.LANGUAGE,
-            'with_groups': 1,
-            'with_docket': 1,
-            'with_extra_info': 1,
-            'goods_group_href': 1,
-            'product_ids': ",".join(product_ids),
+            "country": constants.COUNTRY,
+            "lang": constants.LANGUAGE,
+            "with_groups": 1,
+            "with_docket": 1,
+            "with_extra_info": 1,
+            "goods_group_href": 1,
+            "product_ids": ",".join(product_ids),
         }
 
         # LOG.debug(f"Parsing batch of {len(product_ids)} products")
         output = []
         req = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
         if req.status_code != 200:
-            LOG.error(f"Error while parsing batch of {len(product_ids)} products: {req.status_code}: {req.reason}")
+            LOG.error(
+                f"Error while parsing batch of {len(product_ids)} products: {req.status_code}: {req.reason}"
+            )
             return output
 
         if req is None:
             return output
 
         try:
-            data: List[dict] = req.json().get('data')
-        except Exception as e:
+            data: list[dict] = req.json().get("data")
+        except Exception:
             data = []
         """
         {
@@ -92,7 +97,7 @@ class Item:
             "pl_bonus_charge_pcs": 0,
             "pl_use_instant_bonus": 0,
             "state": "new",
-            "docket": "Екран (6.4\", Super AMOLED, 2400x1080) / Mediatek Helio G80 (2 x 2.0 ГГц + 6 x 1.8 ГГц) / 
+            "docket": "Екран (6.4\", Super AMOLED, 2400x1080) / Mediatek Helio G80 (2 x 2.0 ГГц + 6 x 1.8 ГГц) /
             "mpath": ".4627949.80003.",
             "is_group_primary": 1,
             "dispatch": 1,
@@ -132,13 +137,13 @@ class Item:
                 "main": "https://content1.rozetka.com.ua/goods/images/big_tile/175376690.jpg",
                 "preview": "https://content1.rozetka.com.ua/goods/images/preview/175376690.jpg",
                 "hover": "https://content.rozetka.com.ua/goods/images/big_tile/175376700.jpg",
-                "all_images": ["https://content1.rozetka.com.ua/goods/images/original/175376690.jpg", 
-                                "https://content.rozetka.com.ua/goods/images/original/175376700.jpg", 
-                                "https://content2.rozetka.com.ua/goods/images/original/175376709.jpg", 
-                                "https://content1.rozetka.com.ua/goods/images/original/175376715.jpg", 
-                                "https://content1.rozetka.com.ua/goods/images/original/175376721.jpg", 
-                                "https://content1.rozetka.com.ua/goods/images/original/175376697.jpg", 
-                                "https://content1.rozetka.com.ua/goods/images/original/175376698.jpg", 
+                "all_images": ["https://content1.rozetka.com.ua/goods/images/original/175376690.jpg",
+                                "https://content.rozetka.com.ua/goods/images/original/175376700.jpg",
+                                "https://content2.rozetka.com.ua/goods/images/original/175376709.jpg",
+                                "https://content1.rozetka.com.ua/goods/images/original/175376715.jpg",
+                                "https://content1.rozetka.com.ua/goods/images/original/175376721.jpg",
+                                "https://content1.rozetka.com.ua/goods/images/original/175376697.jpg",
+                                "https://content1.rozetka.com.ua/goods/images/original/175376698.jpg",
                                 "https://content.rozetka.com.ua/goods/images/original/175376694.jpg"]
             },
             "parent_category_id": 4627949,
@@ -204,11 +209,11 @@ class Item:
         """
 
         for item_data in data:
-            id_ = item_data.get('id')
+            id_ = item_data.get("id")
             if not id_:
                 continue
 
-            item_data.pop('id')
+            item_data.pop("id")
             if subitems:
                 item = SubItem.get(id_, **item_data)
             else:
@@ -234,12 +239,20 @@ class Item:
         product_ids_str = [str(i) for i in product_ids]
         chunk_size = constants.BULK_ITEMS_REQUEST_MAX_LENGTH
         chunked_lists = tools.slice_list(product_ids_str, chunk_size)
-        LOG.debug(f"Parsing {len(product_ids)} products divided into {len(chunked_lists)} batches by {chunk_size} each")
+        LOG.debug(
+            f"Parsing {len(product_ids)} products divided into {len(chunked_lists)} batches by {chunk_size} each"
+        )
         output = []
-        first_barch = Item._parse_batch(*chunked_lists[0], subitems=subitems, parse_subitems=parse_subitems)
+        first_barch = Item._parse_batch(
+            *chunked_lists[0], subitems=subitems, parse_subitems=parse_subitems
+        )
         output.extend(first_barch)
-        batches = tools.fnc_map(Item._parse_batch, *chunked_lists, subitems=subitems,
-                                parse_subitems=parse_subitems)
+        batches = tools.fnc_map(
+            Item._parse_batch,
+            *chunked_lists,
+            subitems=subitems,
+            parse_subitems=parse_subitems,
+        )
         for batch in batches:
             output.extend(batch)
         output = list(filter(lambda _: _ is not None, output))
@@ -248,7 +261,7 @@ class Item:
     @cached_property
     def subitem_ids(self):
         self.parse()
-        groups = self._data.get('groups', {})
+        groups = self._data.get("groups", {})
         if not groups:
             return []
 
@@ -264,7 +277,7 @@ class Item:
                     continue
 
                 for subitem in subitem_iterator:
-                    if id_ := subitem.get('id'):
+                    if id_ := subitem.get("id"):
                         if id_ == self.id_:
                             continue
 
@@ -333,7 +346,7 @@ class SubItem(Item):
         return super().parse(force=force, subitems=True, parse_subitems=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     item_ = Item.get(331350610)
     item_.parse()
     from rozetka.entities.category import Category

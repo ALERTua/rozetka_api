@@ -41,5 +41,7 @@ documentation = "https://github.com/ALERTua/rozetka_api"
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.1.0",
     "pytest>=8.3.5",
+    "ruff>=0.9.9",
 ]

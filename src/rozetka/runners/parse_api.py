@@ -11,7 +11,10 @@ from ..entities.item import Item, SubItem
 from ..entities.supercategory import SuperCategory
 from ..entities.category import Category
 from ..entities.point import Point
-from ..entities.supercategory import get_all_items_recursively, get_all_item_ids_recursively
+from ..entities.supercategory import (
+    get_all_items_recursively,
+    get_all_item_ids_recursively,
+)
 from ..tools import db, constants, tools
 
 LOG = Log.get_logger()
@@ -35,11 +38,11 @@ def build_item_point(item: Item):
 
 def _main():
     checks = [
-        'https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList',
-        'https://rozetka.com.ua',
+        "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList",
+        "https://rozetka.com.ua",
     ]
     cookies = copy(constants.DEFAULT_COOKIES)
-    cookies['city_id'] = "b205dde2-2e2e-4eb9-aef2-a67c82bbdf27"
+    cookies["city_id"] = "b205dde2-2e2e-4eb9-aef2-a67c82bbdf27"
     for check in checks:
         try:
             req = tools.get(check, headers=constants.DEFAULT_HEADERS, cookies=cookies)
@@ -63,45 +66,63 @@ def _main():
     LOG.verbose = constants.VERBOSE
 
     all_item_ids, all_categories_len = get_all_item_ids_recursively()
-    LOG.green(f"Got {len(all_item_ids)} item ids in {pendulum.now().diff_for_humans(start)}")
+    LOG.green(
+        f"Got {len(all_item_ids)} item ids in {pendulum.now().diff_for_humans(start)}"
+    )
     chunked_items_ids = tools.slice_list(all_item_ids, 10000)
     del all_item_ids
 
     overal_length = 0
-    for chunked_item_ids in Bar(f"Dumping {len(chunked_items_ids)} point chunks").iter(chunked_items_ids):
+    for chunked_item_ids in Bar(f"Dumping {len(chunked_items_ids)} point chunks").iter(
+        chunked_items_ids
+    ):
         Item._cache = {}
         SubItem._cache = {}
         Category._cache = {}
         SuperCategory._cache = {}
-        all_items = get_all_items_recursively(items_ids=chunked_item_ids, all_categories_len=all_categories_len)
+        all_items = get_all_items_recursively(
+            items_ids=chunked_item_ids, all_categories_len=all_categories_len
+        )
         LOG.green(f"Building points for {len(all_items)} items")
         points = list(map(build_item_point, all_items))
         LOG.green(f"Dumping {len(points)} points")
         # https://docs.influxdata.com/influxdb/v2.4/write-data/best-practices/optimize-writes/
         chunked_points = tools.slice_list(points, 5000)
-        for chunked_points_item in Bar(f"Dumping {len(chunked_points)} point chunks").iter(chunked_points):
+        for chunked_points_item in Bar(
+            f"Dumping {len(chunked_points)} point chunks"
+        ).iter(chunked_points):
             asyncio.run(db.dump_points_async(record=chunked_points_item))
 
         overal_length += len(points)
 
-    LOG.green(f"Points: {overal_length}, Duration: {pendulum.now().diff_for_humans(start)}")
+    LOG.green(
+        f"Points: {overal_length}, Duration: {pendulum.now().diff_for_humans(start)}"
+    )
     return overal_length
 
 
 def main():
-    assert constants.INFLUXDB_URL and constants.INFLUXDB_TOKEN and constants.INFLUXDB_ORG \
-           and constants.INFLUXDB_BUCKET, "Please fill all INFLUXDB variables"
+    assert (
+        constants.INFLUXDB_URL
+        and constants.INFLUXDB_TOKEN
+        and constants.INFLUXDB_ORG
+        and constants.INFLUXDB_BUCKET
+    ), "Please fill all INFLUXDB variables"
 
     assert constants.CALLS_MAX, "Please fill the correct CALLS_MAX variable"
     assert constants.CALLS_PERIOD, "Please fill the correct CALLS_PERIOD variable"
     fnc = _main  # https://github.com/huggingface/knockknock
-    if (tg_token := constants.TELEGRAM_TOKEN) and (tg_chat := constants.TELEGRAM_CHAT_ID):
+    if (tg_token := constants.TELEGRAM_TOKEN) and (
+        tg_chat := constants.TELEGRAM_CHAT_ID
+    ):
         fnc = telegram_sender(token=tg_token, chat_id=int(tg_chat))(fnc)
 
     if discord_webhook := constants.DISCORD_WEBHOOK_URL:
         fnc = discord_sender(discord_webhook)(fnc)
 
-    if (slack_webhook := constants.SLACK_WEBHOOK_URL) and (slack_channel := constants.SLACK_CHANNEL):
+    if (slack_webhook := constants.SLACK_WEBHOOK_URL) and (
+        slack_channel := constants.SLACK_CHANNEL
+    ):
         if slack_user_mentions := constants.SLACK_USER_MENTIONS:
             slack_user_mentions = slack_user_mentions.split()
         fnc = slack_sender(slack_webhook, slack_channel, slack_user_mentions)(fnc)
@@ -114,6 +135,6 @@ def main():
     fnc()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
     pass
