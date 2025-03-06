@@ -1,6 +1,6 @@
 [project]
 name = "rozetka"
-version = "1.6.6"
+version = "1.6.7"
 description = "Rozetka Python API"
 authors = [
     { name = "Alexey ALERT Rubasheff", email = "alexey.rubasheff@gmail.com" }

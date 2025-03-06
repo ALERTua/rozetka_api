@@ -3,6 +3,14 @@ History
 =======
 
 
+1.6.7 (2025-03-06)
+------------------
+
+* Thread limiting
+* UV instead of Poetry
+* File sctructure changed
+
+
 1.6.7 (2024-08-05)
 ------------------
 
