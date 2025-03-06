@@ -6,10 +6,10 @@ on:
     branches: [ "main" ]
     paths-ignore:
       - "script/**"
+      - "*.md"
+
   pull_request:
     branches: [ "main" ]
-    paths-ignore:
-      - "script/**"
 
 env:
   REGISTRY: ghcr.io
