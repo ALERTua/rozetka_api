@@ -4,7 +4,7 @@ from typing import Collection
 
 from global_logger import Log
 
-from ..tools import tools, constants
+from rozetka.tools import tools, constants
 
 LOG = Log.get_logger()
 
@@ -24,7 +24,7 @@ class Item:
 
         if (stars := self.__dict__.get("stars", None)) is not None:
             if "%" in str(stars):
-                self.stars = int(stars.rstrip("%")) / 100
+                self.stars = int(str(stars).rstrip("%")) / 100
 
         if (comments_mark := self.__dict__.get("comments_mark", None)) is not None:
             self.comments_mark = float(comments_mark)

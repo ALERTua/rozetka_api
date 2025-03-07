@@ -2,11 +2,11 @@ from itertools import chain
 from typing import List
 
 from global_logger import Log
-from requests import Response
+from curl_cffi.requests import Response
 
-from .category import Category
-from .item import Item, SubItem
-from ..tools import tools, constants
+from rozetka.entities.category import Category
+from rozetka.entities.item import Item, SubItem
+from rozetka.tools import tools, constants
 
 LOG = Log.get_logger()
 

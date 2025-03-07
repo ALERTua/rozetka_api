@@ -1,21 +1,20 @@
 import asyncio
 from copy import copy
-
-import pendulum
+from datetime import datetime
 
 from global_logger import Log
 from knockknock import telegram_sender, discord_sender, slack_sender, teams_sender
 from progress.bar import Bar
 
-from ..entities.item import Item, SubItem
-from ..entities.supercategory import SuperCategory
-from ..entities.category import Category
-from ..entities.point import Point
-from ..entities.supercategory import (
+from rozetka.entities.item import Item, SubItem
+from rozetka.entities.supercategory import SuperCategory
+from rozetka.entities.category import Category
+from rozetka.entities.point import Point
+from rozetka.entities.supercategory import (
     get_all_items_recursively,
     get_all_item_ids_recursively,
 )
-from ..tools import db, constants, tools
+from rozetka.tools import db, constants, tools
 
 LOG = Log.get_logger()
 
@@ -62,13 +61,12 @@ def _main():
         LOG.error(msg)
         raise Exception(msg)
 
-    start = pendulum.now()
+    start = datetime.now(tz=constants.TZ)
     LOG.verbose = constants.VERBOSE
 
     all_item_ids, all_categories_len = get_all_item_ids_recursively()
-    LOG.green(
-        f"Got {len(all_item_ids)} item ids in {pendulum.now().diff_for_humans(start)}"
-    )
+    total_seconds = (datetime.now(tz=constants.TZ) - start).total_seconds()
+    LOG.green(f"Got {len(all_item_ids)} item ids in {total_seconds} seconds")
     chunked_items_ids = tools.slice_list(all_item_ids, 10000)
     del all_item_ids
 
@@ -95,9 +93,8 @@ def _main():
 
         overal_length += len(points)
 
-    LOG.green(
-        f"Points: {overal_length}, Duration: {pendulum.now().diff_for_humans(start)}"
-    )
+    total_seconds = (datetime.now(tz=constants.TZ) - start).total_seconds()
+    LOG.green(f"Points: {overal_length}, Duration: {total_seconds}")
     return overal_length
 
 

@@ -1,15 +1,15 @@
 from copy import copy
 
-import pendulum
 from aiohttp_retry import ExponentialRetry, RetryClient
 from global_logger import Log
 
 # https://github.com/influxdata/influxdb-client-python
 from influxdb_client import InfluxDBClient, Bucket, BucketRetentionRules
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
+from datetime import timedelta, datetime
 
-from ..entities.point import Point
-from ..tools import constants
+from rozetka.entities.point import Point
+from rozetka.tools import constants
 
 log = Log.get_logger()
 
@@ -101,7 +101,7 @@ def recreate_bucket(bucket_name=INFLUXDB_BUCKET):
         buckets_api = client.buckets_api()
         bucket: Bucket = buckets_api.find_bucket_by_name(bucket_name=bucket_name)
         if bucket:
-            seconds = pendulum.duration(hours=1).in_seconds()
+            seconds = timedelta(hours=1).total_seconds()
             bucket.retention_rules = [
                 BucketRetentionRules(
                     type="expire",
@@ -109,7 +109,9 @@ def recreate_bucket(bucket_name=INFLUXDB_BUCKET):
                     every_seconds=seconds,
                 )
             ]
-            bucket.name = f"{bucket.name}_old_{pendulum.now().timestamp()}"
+            bucket.name = (
+                f"{bucket.name}_old_{datetime.now(tz=constants.TZ).timestamp()}"
+            )
             buckets_api.update_bucket(bucket)
         # result_delete = buckets_api.delete_bucket(bucket)
         # bucket = Bucket(name=bucket_name, retention_rules=retention_rules)

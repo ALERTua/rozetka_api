@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS production
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS production
 
 LABEL maintainer="ALERT <alexey.rubasheff@gmail.com>"
 
@@ -8,7 +8,7 @@ ENV INFLUXDB_ORG=""
 ENV INFLUXDB_BUCKET=""
 ENV TELEGRAM_TOKEN=""
 ENV TELEGRAM_CHAT_ID=""
-ENV IMPERSONATE="chrome131"
+ENV IMPERSONATE=""
 ENV TZ="Europe/London"
 
 ENV \
@@ -28,7 +28,7 @@ ENV \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     # app
     APP_DIR=/app \
-    SOURCE_DIR_NAME=src
+    SOURCE_DIR_NAME=rozetka
 
 
 WORKDIR $APP_DIR
@@ -42,4 +42,4 @@ COPY $SOURCE_DIR_NAME $SOURCE_DIR_NAME
 
 ENTRYPOINT []
 
-CMD uv run -m $SOURCE_DIR_NAME.rozetka.runners.parse_api
+CMD uv run -m $SOURCE_DIR_NAME.runners.parse_api

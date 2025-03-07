@@ -1,5 +1,6 @@
 import os
 from collections import namedtuple
+from zoneinfo import ZoneInfo
 
 Setter = namedtuple("Setter", ["fnc", "flds"])
 
@@ -16,7 +17,7 @@ DEFAULT_HEADERS = {}
 DEFAULT_COOKIES = {
     "visitor_city": "1",
 }
-IMPERSONATE = os.getenv("IMPERSONATE", "chrome")
+IMPERSONATE = os.getenv("IMPERSONATE", "chrome131")
 BULK_ITEMS_REQUEST_MAX_LENGTH = 60
 
 THREADS_MAX = int(os.getenv("THREADS_MAX", 1500))
@@ -44,6 +45,9 @@ TEAMS_WEBHOOK_URL = os.getenv("TEAMS_WEBHOOK_URL")
 TEAMS_USER_MENTIONS = os.getenv("TEAMS_USER_MENTIONS", "")
 
 MEASUREMENT = os.getenv("MEASUREMENT", "goods")
+
+TZ_ENV = os.getenv("TZ", "Europe/London")
+TZ = ZoneInfo(TZ_ENV)
 
 DEFAULT_TAGS = [
     "id_",

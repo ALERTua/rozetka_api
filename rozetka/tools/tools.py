@@ -3,14 +3,14 @@ import time
 from itertools import zip_longest
 
 from curl_cffi import requests
+from curl_cffi.requests import Response
 from global_logger import Log
 from ratelimit import limits, sleep_and_retry, RateLimitException
-from requests import Response
 
 # noinspection PyPackageRequirements
 from worker import worker, ThreadWorkerManager
 
-from . import constants
+from rozetka.tools import constants
 
 LOG = Log.get_logger()
 
