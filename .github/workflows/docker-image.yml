@@ -7,6 +7,12 @@ on:
     paths-ignore:
       - "script/**"
       - "*.md"
+      - "script/"
+      - ".github/"
+      - "tests/"
+      - ".pre-commit-config.yaml"
+      - "**/*.rst"
+      - "**/*.md"
 
   pull_request:
     branches: [ "main" ]
