@@ -37,8 +37,8 @@ def build_item_point(item: Item):
 
 def _main():
     checks = [
-        constants.URL_GET_SUPERCATEGORIES,
-        constants.URL_GET_FAT_MENU,
+        # constants.URL_GET_SUPERCATEGORIES,
+        # constants.URL_GET_FAT_MENU,
         "https://rozetka.com.ua",
     ]
     cookies = copy(constants.DEFAULT_COOKIES)
