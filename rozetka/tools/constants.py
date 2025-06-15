@@ -44,8 +44,6 @@ SLACK_USER_MENTIONS = os.getenv("SLACK_USER_MENTIONS", "")
 TEAMS_WEBHOOK_URL = os.getenv("TEAMS_WEBHOOK_URL")
 TEAMS_USER_MENTIONS = os.getenv("TEAMS_USER_MENTIONS", "")
 
-BYPARR_URL = os.getenv("BYPARR_URL", "")
-
 MEASUREMENT = os.getenv("MEASUREMENT", "goods")
 
 TZ_ENV = os.getenv("TZ", "Europe/London")

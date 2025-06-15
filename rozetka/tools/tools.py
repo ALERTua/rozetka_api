@@ -1,7 +1,6 @@
 import re
 import time
 from itertools import zip_longest
-from typing import Any, Literal
 
 from curl_cffi import requests
 from curl_cffi.requests import Response
@@ -122,71 +121,20 @@ def parse_reviews(reviews_str):
 #     return response
 
 
-def byparr_get(
-    url: str,
-    method: str = "GET",
-    headers: dict[str, str] | None = None,
-    params: dict[str, Any] | None = None,
-    data: Any = None,
-    json_body: Any = None,
-    timeout: int = constants.GET_TIMEOUT,
-) -> requests.Response:
-    payload = {
-        "url": url,
-        "method": method,
-        "headers": headers or {},
-        "params": params or {},
-        "data": data,
-        "json": json_body,
-    }
-    resp = requests.post(constants.BYPARR_URL, json=payload, timeout=timeout)
-    resp.raise_for_status()
-    return resp
-
-
 @sleep_and_retry
 @limits(calls=constants.CALLS_MAX, period=constants.CALLS_PERIOD, raise_on_limit=True)
-def get(
-    *args: Any,
-    method: Literal[
-        "GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "PATCH", "QUERY"
-    ] = "GET",
-    headers: dict[str, str] | None = None,
-    params: dict[str, Any] | None = None,
-    data: Any = None,
-    json_body: Any = None,
-    allowed_codes=None,
-    **kwargs: Any,
-) -> Response:
-    if allowed_codes is None:
-        allowed_codes = []
+def get(*args, **kwargs) -> Response:
+    allowed_codes = kwargs.pop("allowed_codes", [])
     sleep_time = constants.GET_RETRY_DELAY_SEC
-
     try:
-        if constants.BYPARR_URL:
-            response = byparr_get(
-                url=args[0],
-                method=method,
-                headers=headers,
-                params=params,
-                data=data,
-                json_body=json_body,
-                timeout=constants.GET_TIMEOUT,
-            )
-        else:
-            response = requests.request(
-                method,
-                *args,
-                headers=headers,
-                params=params,
-                data=data,
-                json=json_body,
-                timeout=constants.GET_TIMEOUT,
-                impersonate=constants.IMPERSONATE,
-                **kwargs,
-            )
+        response = requests.get(
+            *args,
+            timeout=constants.GET_TIMEOUT,
+            impersonate=constants.IMPERSONATE,
+            **kwargs,
+        )
     except Exception as e:
-        msg = f"Exception while requesting {args}: {type(e)} {e}. Retrying"
+        msg = f"Exception while Requesting {args}: {type(e)} {e}. Retrying"
         LOG.error(msg)
         raise RateLimitException(msg, sleep_time)
 
@@ -195,8 +143,19 @@ def get(
         LOG.debug(msg)
         raise RateLimitException(msg, sleep_time)
 
-    status = response.status_code
-    if status in (500, 502, 503, 504, 508, 521, 522, 524, 203, *allowed_codes):
+    # todo: consider 203
+    if (status := response.status_code) in (
+        500,
+        502,
+        503,
+        504,
+        508,
+        521,
+        522,
+        524,
+        203,
+        *allowed_codes,
+    ):
         msg = f"Request status {status} for {args}. Retrying"
         LOG.error(msg)
         raise RateLimitException(msg, sleep_time)
