@@ -810,7 +810,7 @@ wheels = [
 
 [[package]]
 name = "rozetka-api"
-version = "1.7.0"
+version = "1.7.1"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp-retry" },
