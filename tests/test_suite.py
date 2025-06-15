@@ -4,7 +4,7 @@ from rozetka.entities.item import Item
 from rozetka.entities.point import Point
 from rozetka.entities.supercategory import SuperCategory
 
-ITEM_ID = 330283417  # item id with subitems
+ITEM_ID = 99676718  # item id with subitems
 CATEGORY_ID = 146633
 SUPERCATEGORY_ID = 4627893
 
