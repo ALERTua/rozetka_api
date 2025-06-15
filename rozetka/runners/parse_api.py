@@ -47,12 +47,12 @@ def _main():
         try:
             req = tools.get(check, headers=constants.DEFAULT_HEADERS, cookies=cookies)
         except Exception as e:
-            msg = f"Rozetka unavailable: {type(e)} {e}"
+            msg = f"Rozetka unavailable @ {check}: {type(e)} {e}"
             LOG.exception(msg, exc_info=True)
             raise Exception(msg)
 
         if not req.ok:
-            msg = f"Rozetka Unavailable: {req.status_code} {req.reason}"
+            msg = f"Rozetka Unavailable @ {check}: {req.status_code} {req.reason}"
             LOG.error(msg)
             raise Exception(msg)
 
