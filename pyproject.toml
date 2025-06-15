@@ -13,14 +13,14 @@ classifiers = [
 ]
 dependencies = [
     "aiohttp-retry>=2.8.3",
-    "global-logger>=0.4.2",
+    "global-logger>=0.4.5",
     "progress>=1.6",
     "ratelimit>=2.2.1",
     "python-worker>=2.2.4",
     "knockknock>=0.1.8.1",
-    "influxdb-client[async]>=1.46.0",
-    "curl-cffi>=0.10.0b1",
-    "tzdata>=2025.1",
+    "influxdb-client[async]>=1.49.0",
+    "curl-cffi>=0.11.3",
+    "tzdata>=2025.2",
 ]
 
 [tool.uv]
@@ -46,9 +46,9 @@ packages = ["rozetka"]
 
 [dependency-groups]
 dev = [
-    "pre-commit>=4.1.0",
-    "pytest>=8.3.5",
-    "ruff>=0.9.9",
+    "pre-commit>=4.2.0",
+    "pytest>=8.4.0",
+    "ruff>=0.11.13",
 ]
 
 [tool.ruff.format]
