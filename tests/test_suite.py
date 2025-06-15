@@ -102,6 +102,12 @@ def test_cache_supercategory():
     )
 
 
+def test_cache_supercategory_data():
+    id_ = SUPERCATEGORY_ID
+    supercategory = SuperCategory.get(id_)
+    assert supercategory.data != {}, "SuperCategory data should not be empty"
+
+
 def test_point_hash():
     point = (
         Point("measurement_name")
