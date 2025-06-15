@@ -171,12 +171,19 @@ def get_super_category_ids():
             url, headers=constants.DEFAULT_HEADERS, cookies=constants.DEFAULT_COOKIES
         )
         if response is None or not response.ok:
-            msg = (
-                f'Error requesting "{url}": {response.status_code if response is not None else None} '
-                f"{response.reason if response is not None else None}"
+            bkp_url = "https://catalog-api.rozetka.com.ua/api/super-portals/list"
+            response: Response = tools.get(
+                bkp_url,
+                headers=constants.DEFAULT_HEADERS,
+                cookies=constants.DEFAULT_COOKIES,
             )
-            LOG.error(msg)
-            raise Exception(msg)
+            if response is None or not response.ok:
+                msg = (
+                    f'Error requesting "{url}": {response.status_code if response is not None else None} '
+                    f"{response.reason if response is not None else None}"
+                )
+                LOG.error(msg)
+                raise Exception(msg)
 
         SuperCategory._super_category_ids = output = response.json().get("data", list())
         # noinspection PyProtectedMember
@@ -242,12 +249,16 @@ class SuperCategory(Category):
                 "lang": constants.LANGUAGE,
                 "country": constants.COUNTRY,
             }
-            url = "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get"
+            # url = "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get"
+            url = "https://catalog-api.rozetka.com.ua/api/super-portals/super-portal"
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
             if response is None:
                 return
 
-            self._data = response.json().get("data", {}) or {}
+            try:
+                self._data = response.json().get("data", {}) or {}
+            except Exception as e:
+                LOG.exception(f"Error decoding supercategory data: {e}")
         return self._data
 
     @data.setter
