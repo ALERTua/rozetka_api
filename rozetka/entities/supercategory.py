@@ -24,7 +24,7 @@ def get_fat_menu_categories():
     }
     output = []
     response = tools.get(
-        "https://common-api.rozetka.com.ua/v2/fat-menu/full",
+        constants.URL_GET_FAT_MENU,
         params=params,
         headers=constants.DEFAULT_HEADERS,
     )
@@ -166,12 +166,12 @@ def get_super_category_ids():
     # noinspection PyProtectedMember
     if SuperCategory._super_category_ids is None:
         LOG.debug("Getting super category ids")
-        url = "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList"
+        url = constants.URL_GET_SUPERCATEGORIES_OLD
         response: Response = tools.get(
             url, headers=constants.DEFAULT_HEADERS, cookies=constants.DEFAULT_COOKIES
         )
         if response is None or not response.ok:
-            bkp_url = "https://catalog-api.rozetka.com.ua/api/super-portals/list"
+            bkp_url = constants.URL_GET_SUPERCATEGORIES
             response: Response = tools.get(
                 bkp_url,
                 headers=constants.DEFAULT_HEADERS,
@@ -249,8 +249,7 @@ class SuperCategory(Category):
                 "lang": constants.LANGUAGE,
                 "country": constants.COUNTRY,
             }
-            # url = "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get"
-            url = "https://catalog-api.rozetka.com.ua/api/super-portals/super-portal"
+            url = constants.URL_GET_SUPERCATEGORY
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
             if response is None:
                 return

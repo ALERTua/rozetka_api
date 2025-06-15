@@ -47,7 +47,7 @@ class Item:
 
     @staticmethod
     def _parse_batch(*product_ids, subitems=False, parse_subitems=True):
-        url = "https://xl-catalog-api.rozetka.com.ua/v4/goods/getDetails"
+        url = constants.URL_GET_ITEM
         params = {
             "country": constants.COUNTRY,
             "lang": constants.LANGUAGE,

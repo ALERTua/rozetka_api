@@ -67,3 +67,15 @@ DEFAULT_FIELDS = [
 FIELDS = os.getenv("FIELDS", DEFAULT_FIELDS)
 if isinstance(FIELDS, str):
     FIELDS = FIELDS.split()
+
+URL_GET_SUPERCATEGORIES_OLD = (
+    "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList"
+)
+URL_GET_SUPERCATEGORIES = "https://catalog-api.rozetka.com.ua/api/super-portals/list"
+
+URL_GET_SUPERCATEGORY = (
+    "https://catalog-api.rozetka.com.ua/api/super-portals/super-portal"
+)
+URL_GET_CATEGORY = "https://xl-catalog-api.rozetka.com.ua/v4/categories/get"
+URL_GET_ITEM = "https://xl-catalog-api.rozetka.com.ua/v4/goods/getDetails"
+URL_GET_FAT_MENU = "https://common-api.rozetka.com.ua/v2/fat-menu/full"

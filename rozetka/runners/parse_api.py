@@ -37,7 +37,8 @@ def build_item_point(item: Item):
 
 def _main():
     checks = [
-        "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList",
+        constants.URL_GET_SUPERCATEGORIES,
+        constants.URL_GET_FAT_MENU,
         "https://rozetka.com.ua",
     ]
     cookies = copy(constants.DEFAULT_COOKIES)

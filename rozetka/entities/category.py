@@ -75,7 +75,7 @@ class Category:
                 "lang": constants.LANGUAGE,
                 "country": constants.COUNTRY,
             }
-            url = "https://xl-catalog-api.rozetka.com.ua/v4/categories/get"
+            url = constants.URL_GET_CATEGORY
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
             if response is None:
                 return
