@@ -2,7 +2,7 @@ import re
 import time
 from itertools import zip_longest
 
-from curl_cffi import requests
+from curl_cffi import Session
 from curl_cffi.requests import Response
 from global_logger import Log
 from ratelimit import limits, sleep_and_retry, RateLimitException
@@ -13,6 +13,8 @@ from worker import worker, ThreadWorkerManager
 from rozetka.tools import constants
 
 LOG = Log.get_logger()
+
+session = Session()
 
 
 def title_clean(title):
@@ -127,7 +129,7 @@ def get(*args, **kwargs) -> Response:
     allowed_codes = kwargs.pop("allowed_codes", [])
     sleep_time = constants.GET_RETRY_DELAY_SEC
     try:
-        response = requests.get(
+        response = session.get(
             *args,
             timeout=constants.GET_TIMEOUT,
             impersonate=constants.IMPERSONATE,
