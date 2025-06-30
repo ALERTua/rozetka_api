@@ -19,7 +19,7 @@ dependencies = [
     "python-worker>=2.2.4",
     "knockknock>=0.1.8.1",
     "influxdb-client[async]>=1.49.0",
-    "curl-cffi>=0.11.3",
+    "curl-cffi>=0.12.0b",
     "tzdata>=2025.2",
 ]
 
@@ -47,8 +47,8 @@ packages = ["rozetka"]
 [dependency-groups]
 dev = [
     "pre-commit>=4.2.0",
-    "pytest>=8.4.0",
-    "ruff>=0.11.13",
+    "pytest>=8.4.1",
+    "ruff>=0.12.1",
 ]
 
 [tool.ruff.format]
