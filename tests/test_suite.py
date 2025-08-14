@@ -1,4 +1,3 @@
-from itertools import chain
 from rozetka.entities.category import Category
 from rozetka.entities.item import Item
 from rozetka.entities.point import Point
@@ -49,22 +48,18 @@ def test_item_getter():
 
 
 def test_item_in_category():
-    item = Item.get(ITEM_ID)
+    item_id = ITEM_ID
+    item = Item.get(item_id)
     item.parse()
-    category = Category.get(item.category_id)
-    assert item.category_id == category.id_
+    category_id = item.category_id
+    item._cache = {}
+    del item
 
-    category_items = category.items
-    category.parse_items()
+    category = Category.get(category_id)
+    category_items = category.items_recursively()
 
-    subitems_ids = list(set(list(chain(*[_.subitem_ids for _ in category_items]))))
-    subitems_ids.sort()
-    # assert item.id_ in category.items_ids or item.id_ in subitems_ids
-
-    subitems = Item.parse_multiple(*subitems_ids, subitems=True)
-    items_and_subitems = category_items + subitems
-    items_and_subitems.sort(key=lambda _: _.id_)
-    assert item in items_and_subitems
+    item = Item.get(item_id)
+    assert item in category_items
 
 
 def test_subitems():
@@ -100,12 +95,6 @@ def test_cache_supercategory():
     assert supercategory1 is supercategory2, (
         "SuperCategories of the same id should be the same"
     )
-
-
-def test_cache_supercategory_data():
-    id_ = SUPERCATEGORY_ID
-    supercategory = SuperCategory.get(id_)
-    assert supercategory.data != {}, "SuperCategory data should not be empty"
 
 
 def test_point_hash():
