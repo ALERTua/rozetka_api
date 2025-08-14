@@ -234,8 +234,8 @@ class Item:
         if not product_ids:
             return []
 
-        if isinstance(product_ids[0], Item):
-            product_ids = [i.id_ for i in product_ids]
+        if isinstance(product_ids[0], (Item, int)):
+            product_ids = [i if isinstance(i, int) else i.id_ for i in product_ids]
         elif isinstance(product_ids[0], Collection):
             product_ids = product_ids[0]
 
