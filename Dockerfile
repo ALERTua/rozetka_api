@@ -10,7 +10,6 @@ ENV TELEGRAM_TOKEN=""
 ENV TELEGRAM_CHAT_ID=""
 ENV IMPERSONATE=""
 ENV TZ="Europe/London"
-ENV CMD_EXTENSION=""
 
 ENV \
     # uv
@@ -43,4 +42,4 @@ COPY $SOURCE_DIR_NAME $SOURCE_DIR_NAME
 
 ENTRYPOINT []
 
-CMD uv run -m $SOURCE_DIR_NAME.runners.parse_api;$CMD_EXTENSION
+CMD uv run -m $SOURCE_DIR_NAME.runners.parse_api
