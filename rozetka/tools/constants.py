@@ -53,7 +53,7 @@ TEAMS_USER_MENTIONS = os.getenv("TEAMS_USER_MENTIONS", "")
 
 MEASUREMENT = os.getenv("MEASUREMENT", "goods")
 
-TZ_ENV = os.getenv("TZ", "Europe/London")
+TZ_ENV = os.getenv("TZ", "Europe/Kyiv")
 TZ = ZoneInfo(TZ_ENV)
 
 DEFAULT_TAGS = [
