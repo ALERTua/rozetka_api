@@ -14,12 +14,12 @@ classifiers = [
 dependencies = [
     "aiohttp-retry>=2.8.3",
     "global-logger>=0.4.5",
-    "progress>=1.6",
+    "progress>=1.6.1",
     "ratelimit>=2.2.1",
     "python-worker>=2.2.4",
     "knockknock>=0.1.8.1",
     "influxdb-client[async]>=1.49.0",
-    "curl-cffi>=0.12.0b",
+    "curl-cffi>=0.13.0",
     "tzdata>=2025.2",
 ]
 
@@ -36,19 +36,19 @@ documentation = "https://github.com/ALERTua/rozetka_api"
 "Rozetka FastAPI" = "https://github.com/ALERTua/rozetka_fastapi"
 "Rozetka UserScript" = "https://github.com/ALERTua/rozetka_userscript"
 
-
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv-build"]
+build-backend = "uv_build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["rozetka"]
+[tool.uv.build-backend]
+module-name = "rozetka"
+module-root = ""
 
 [dependency-groups]
 dev = [
-    "pre-commit>=4.2.0",
+    "pre-commit>=4.3.0",
     "pytest>=8.4.1",
-    "ruff>=0.12.1",
+    "ruff>=0.12.8",
 ]
 
 [tool.ruff.format]
