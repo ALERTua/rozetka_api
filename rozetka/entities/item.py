@@ -40,6 +40,9 @@ class Item:
     def __repr__(self):
         return f"[{self.__class__.__name__}]{self.__str__()}"
 
+    def __hash__(self):
+        return self.id_
+
     def __iter__(self):
         for subitem in self.subitems:
             yield subitem
