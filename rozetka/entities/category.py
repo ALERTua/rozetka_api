@@ -242,6 +242,11 @@ class Category:
     def parse_items(self):
         _ = Item.parse_multiple(*self.items_ids, parse_subitems=True)
 
+    def items_recursively(self):
+        from .supercategory import get_all_items_recursively
+
+        return get_all_items_recursively(items_ids=self.items_ids, all_categories_len=1)
+
     @property
     def subcategories_data(self):
         if self._subcategories_data is None:
