@@ -240,7 +240,7 @@ class Category:
         return self._items
 
     def parse_items(self):
-        _ = Item.parse_multiple(*self.items_ids, parse_subitems=True)
+        _ = Item.parse_multiple(*self.items_ids, subitems=False, parse_subitems=True)
 
     def items_recursively(self):
         from .supercategory import get_all_items_recursively
