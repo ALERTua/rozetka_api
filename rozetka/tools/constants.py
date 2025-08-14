@@ -78,11 +78,14 @@ if isinstance(FIELDS, str):
 URL_GET_SUPERCATEGORIES_OLD = (
     "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList"
 )
-URL_GET_SUPERCATEGORIES = "https://catalog-api.rozetka.com.ua/api/super-portals/list"
+URL_GET_SUPERCATEGORIES = (
+    "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/getList"
+)
 
 URL_GET_SUPERCATEGORY = (
     "https://catalog-api.rozetka.com.ua/api/super-portals/super-portal"
 )
+URL_GET_SUPERCATEGORY_OLD = "https://xl-catalog-api.rozetka.com.ua/v4/super-portals/get"
 URL_GET_CATEGORY = "https://xl-catalog-api.rozetka.com.ua/v4/categories/get"
 URL_GET_ITEM = "https://xl-catalog-api.rozetka.com.ua/v4/goods/getDetails"
 URL_GET_FAT_MENU = "https://common-api.rozetka.com.ua/v2/fat-menu/full"
