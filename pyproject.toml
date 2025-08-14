@@ -21,6 +21,7 @@ dependencies = [
     "influxdb-client[async]>=1.49.0",
     "curl-cffi>=0.13.0",
     "tzdata>=2025.2",
+    "python-dotenv>=1.1.1",
 ]
 
 [tool.uv]

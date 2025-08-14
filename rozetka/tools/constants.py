@@ -1,6 +1,9 @@
 import os
 from collections import namedtuple
 from zoneinfo import ZoneInfo
+from dotenv import load_dotenv
+
+load_dotenv()
 
 Setter = namedtuple("Setter", ["fnc", "flds"])
 
