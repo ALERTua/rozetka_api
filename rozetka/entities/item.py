@@ -258,7 +258,7 @@ class Item:
         )
         for batch in batches:
             output.extend(batch)
-        output = list(filter(lambda _: _ is not None, output))
+        output = list(set(list(filter(lambda _: _ is not None, output))))
         return output
 
     @cached_property
