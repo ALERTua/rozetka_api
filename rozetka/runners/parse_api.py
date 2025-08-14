@@ -39,7 +39,7 @@ def _main():
     checks = [
         "https://rozetka.com.ua",
         constants.URL_GET_FAT_MENU,
-        constants.URL_GET_SUPERCATEGORIES,
+        # constants.URL_GET_SUPERCATEGORIES,
     ]
     cookies = copy(constants.DEFAULT_COOKIES)
     cookies["city_id"] = "b205dde2-2e2e-4eb9-aef2-a67c82bbdf27"
