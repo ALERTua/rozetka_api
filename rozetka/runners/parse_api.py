@@ -52,8 +52,9 @@ def _main():
             raise Exception(msg)
 
         if not req.ok:
-            msg = f"Rozetka Unavailable @ {check}: {req.status_code} {req.reason}"
+            msg = f"Rozetka Request not OK @ {check}: {req.status_code} {req.reason}"
             LOG.error(msg)
+            LOG.debug(req.text)
             raise Exception(msg)
 
     healthcheck = asyncio.run(db.health_test())
