@@ -19,14 +19,20 @@ class Item:
         )
         self.id_ = id_
         assert isinstance(self.id_, int), f"{self.__class__.__name__} id must be an int"
-        self.category = None
+
+        if self.__dict__.get("category", None) is None:
+            if category_id := kwargs.get("category", {}).get("id", None) is not None:
+                from .category import Category
+
+                self.category = Category.get(category_id)
+
         self.data = kwargs
 
-        if (stars := self.__dict__.get("stars", None)) is not None:
+        if stars := self.__dict__.get("stars", None) is not None:
             if "%" in str(stars):
                 self.stars = int(str(stars).rstrip("%")) / 100
 
-        if (comments_mark := self.__dict__.get("comments_mark", None)) is not None:
+        if comments_mark := self.__dict__.get("comments_mark", None) is not None:
             self.comments_mark = float(comments_mark)
 
         self._parsed = False
