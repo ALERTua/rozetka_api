@@ -24,7 +24,7 @@ CF_CLEARANCE = os.getenv("CF_CLEARANCE", None)
 if CF_CLEARANCE:
     DEFAULT_COOKIES["cf_clearance"] = CF_CLEARANCE
 
-IMPERSONATE = os.getenv("IMPERSONATE", "chrome")
+IMPERSONATE = os.getenv("IMPERSONATE", "chrome") or "chrome"
 BULK_ITEMS_REQUEST_MAX_LENGTH = 60
 
 THREADS_MAX = int(os.getenv("THREADS_MAX", 1500))
