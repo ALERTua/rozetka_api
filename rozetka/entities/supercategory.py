@@ -80,14 +80,17 @@ def get_fat_menu_categories():
     return output
 
 
-def get_all_item_ids_recursively():
-    _ = get_super_category_ids()
-    del _
-    categories = list(get_all_categories_recursively())
-    all_categories = list(set(categories))
-    del categories
-    all_categories.sort(key=lambda _: _.id_)
-    all_categories = [_ for _ in all_categories if _ is not None]
+def get_all_item_ids_recursively(categories: list[Category] = None):
+    if categories is None:
+        _ = get_super_category_ids()
+        del _
+        categories = list(get_all_categories_recursively())
+        all_categories = list(set(categories))
+        del categories
+        all_categories.sort(key=lambda _: _.id_)
+        all_categories = [_ for _ in all_categories if _ is not None]
+    else:
+        all_categories = categories
 
     all_categories_len = len(all_categories)
     LOG.green(f"Got total {all_categories_len} categories")
