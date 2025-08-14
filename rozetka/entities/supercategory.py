@@ -252,7 +252,7 @@ class SuperCategory(Category):
             url = constants.URL_GET_SUPERCATEGORY
             response = tools.get(url, params=params, headers=constants.DEFAULT_HEADERS)
             if response is None:
-                return
+                return None
 
             try:
                 self._data = response.json().get("data", {}) or {}
