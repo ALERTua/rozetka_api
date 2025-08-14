@@ -20,6 +20,10 @@ DEFAULT_HEADERS = {}
 DEFAULT_COOKIES = {
     "visitor_city": "1",
 }
+CF_CLEARANCE = os.getenv("CF_CLEARANCE", None)
+if CF_CLEARANCE:
+    DEFAULT_COOKIES["cf_clearance"] = CF_CLEARANCE
+
 IMPERSONATE = os.getenv("IMPERSONATE", "chrome")
 BULK_ITEMS_REQUEST_MAX_LENGTH = 60
 
