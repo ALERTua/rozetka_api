@@ -29,9 +29,9 @@ BULK_ITEMS_REQUEST_MAX_LENGTH = 60
 
 THREADS_MAX = int(os.getenv("THREADS_MAX", 1500))
 CALLS_MAX = int(os.getenv("CALLS_MAX", 100))
-CALLS_PERIOD = int(os.getenv("CALLS_PERIOD", 1))
+CALLS_PERIOD = int(os.getenv("CALLS_PERIOD", 2))
 
-GET_RETRY_DELAY_SEC = int(os.getenv("GET_RETRY_DELAY_SEC", 10))
+GET_RETRY_DELAY_SEC = int(os.getenv("GET_RETRY_DELAY_SEC", 16))
 GET_TIMEOUT = int(os.getenv("GET_TIMEOUT", 30))
 
 INFLUXDB_URL = os.getenv("INFLUXDB_URL")
