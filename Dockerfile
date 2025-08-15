@@ -1,4 +1,6 @@
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS production
+ARG PYTHON_VERSION=3.13
+
+FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-trixie-slim AS production
 
 LABEL maintainer="ALERT <alexey.rubasheff@gmail.com>"
 
