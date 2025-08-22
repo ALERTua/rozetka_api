@@ -46,8 +46,10 @@ class Item:
     def _substitutes(self):
         if isinstance(self.__dict__.get("category", None), (type(None), dict)):
             if (
-                category_id := self.data.get("category", {}).get("id", None)
-            ) is not None:
+                self.data
+                and (category_id := self.data.get("category", {}).get("id", None))
+                is not None
+            ):
                 from .category import Category
 
                 self.category = Category.get(category_id)
