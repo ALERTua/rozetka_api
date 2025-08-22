@@ -272,6 +272,7 @@ class Item:
             subitems=subitems,
             parse_subitems=parse_subitems,
         )
+        batches = [_ for _ in batches if _]
         for batch in batches:
             output.extend(batch)
         output = list(set(list(filter(lambda _: _ is not None, output))))
