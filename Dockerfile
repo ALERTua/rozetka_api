@@ -4,15 +4,6 @@ FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-trixie-slim AS production
 
 LABEL maintainer="ALERT <alexey.rubasheff@gmail.com>"
 
-ENV INFLUXDB_URL=""
-ENV INFLUXDB_TOKEN=""
-ENV INFLUXDB_ORG=""
-ENV INFLUXDB_BUCKET=""
-ENV TELEGRAM_TOKEN=""
-ENV TELEGRAM_CHAT_ID=""
-ENV IMPERSONATE=""
-ENV TZ="Europe/London"
-
 ENV \
     # uv
     UV_COMPILE_BYTECODE=1 \
@@ -30,7 +21,15 @@ ENV \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     # app
     APP_DIR=/app \
-    SOURCE_DIR_NAME=rozetka
+    SOURCE_DIR_NAME=rozetka \
+    INFLUXDB_URL="" \
+    INFLUXDB_TOKEN="" \
+    INFLUXDB_ORG="" \
+    INFLUXDB_BUCKET="" \
+    TELEGRAM_TOKEN="" \
+    TELEGRAM_CHAT_ID="" \
+    IMPERSONATE="" \
+    TZ="Europe/London"
 
 
 WORKDIR $APP_DIR
