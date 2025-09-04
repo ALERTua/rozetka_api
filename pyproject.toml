@@ -1,6 +1,6 @@
 [project]
 name = "rozetka-api"
-version = "1.7.2"
+version = "1.7.3"
 description = "Rozetka Python API"
 authors = [
     { name = "Alexey ALERT Rubasheff", email = "alexey.rubasheff@gmail.com" }
@@ -13,13 +13,13 @@ classifiers = [
 ]
 dependencies = [
     "aiohttp-retry>=2.8.3",
-    "global-logger>=0.4.5",
+    "global-logger>=0.4.7",
     "progress>=1.6.1",
     "ratelimit>=2.2.1",
     "python-worker>=2.2.4",
     "knockknock>=0.1.8.1",
     "influxdb-client[async]>=1.49.0",
-    "curl-cffi>=0.13.0",
+    "curl-cffi>=0.14.0b2",
     "tzdata>=2025.2",
     "python-dotenv>=1.1.1",
 ]
@@ -49,7 +49,7 @@ module-root = ""
 dev = [
     "pre-commit>=4.3.0",
     "pytest>=8.4.1",
-    "ruff>=0.12.8",
+    "ruff>=0.12.11",
 ]
 
 [tool.ruff.format]
